@@ -5,18 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>RhythmCode — Prototype v4</title>
+  <title>BitBeats — Rhythm Education</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     html, body {
       width: 100%; height: 100%;
       overflow: hidden;
-      background: #000000;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
-                   'Helvetica Neue', Arial, sans-serif;
+      background: #0d0d11;
+      font-family: 'VT323', 'Courier New', monospace;
       -webkit-user-select: none; user-select: none;
-      touch-action: manipulation;   /* 'none' blocks taps on iOS — use manipulation instead */
+      touch-action: manipulation;
+    }
+
+    /* ── CRT SCANLINE OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.07) 3px,
+        rgba(0,0,0,0.07) 4px
+      );
+      pointer-events: none;
+      z-index: 9998;
     }
 
     /* ── APP SHELL ── */
@@ -24,38 +41,88 @@
       display: flex; flex-direction: column;
       width: 100vw;
       height: 100vh;
-      height: 100dvh; /* dynamic viewport on Safari/iOS */
+      height: 100dvh;
     }
+
+    /* ── SPLASH SCREEN ── */
+    #splash-screen {
+      position: fixed; inset: 0;
+      background: #0d0d11;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 500; gap: 18px;
+    }
+    #splash-screen.out {
+      animation: splashFadeOut 0.45s ease forwards;
+    }
+    #splash-logo {
+      width: min(68vw, 320px);
+      opacity: 0;
+      animation: pixelReveal 0.6s ease 0.2s forwards;
+    }
+    #splash-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(13px, 3.8vw, 20px);
+      color: #b2b4b2;
+      text-align: center;
+      line-height: 1.9;
+      letter-spacing: 2px;
+      opacity: 0;
+      animation: pixelReveal 0.6s ease 0.55s forwards;
+    }
+    #splash-sub {
+      font-family: 'VT323', monospace;
+      font-size: clamp(14px, 3.5vw, 18px);
+      color: #707372;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      text-align: center;
+      opacity: 0;
+      animation: pixelReveal 0.6s ease 0.75s forwards;
+    }
+    #splash-tap {
+      font-family: 'VT323', monospace;
+      font-size: 15px;
+      color: #514689;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: pixelReveal 0.4s ease 1.4s forwards, blink 1.4s step-end 1.4s infinite;
+    }
+    @keyframes splashFadeOut { from { opacity:1; } to { opacity:0; pointer-events:none; } }
+    @keyframes pixelReveal {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0; } }
 
     /* ── ZONE A: falling note track ── */
     #zone-a {
       flex: 1 1 0;
       position: relative;
-      background: #000000;
+      background: #0d0d11;
       overflow: hidden;
       min-height: 0;
     }
     #track-canvas { display: block; width: 100%; height: 100%; }
 
-    /* ── INFO CORNER — top-right of track ── */
+    /* ── INFO CORNER ── */
     #info-corner {
       position: absolute;
-      right: 16px; top: 12px;
-      background: rgba(28,28,30,0.60);
-      border: 0.5px solid rgba(255,255,255,0.17);
-      border-radius: 20px;
-      padding: 10px 18px;
+      right: 14px; top: 10px;
+      background: #1a1a1e;
+      border: 1px solid #54585a;
+      border-radius: 3px;
+      padding: 8px 14px;
       text-align: center;
-      min-width: 94px;
+      min-width: 88px;
       pointer-events: none;
       z-index: 10;
-      backdrop-filter: blur(7px) saturate(1.8);
-      -webkit-backdrop-filter: blur(7px) saturate(1.8);
-      box-shadow: 0 2px 40px rgba(0,0,0,0.5);
+      box-shadow: 3px 3px 0 #514689;
     }
-    .ic-sig   { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.55); letter-spacing: 0.06px; }
-    .ic-score { font-size: 22px; font-weight: 700; color: #FFF; letter-spacing: -0.26px; line-height: 1.1; margin-top: 1px; }
-    .ic-label { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.55); letter-spacing: 0.06px; text-transform: uppercase; margin-top: 2px; }
+    .ic-sig   { font-family: 'VT323', monospace; font-size: 13px; color: #707372; letter-spacing: 1px; }
+    .ic-score { font-family: 'VT323', monospace; font-size: 22px; color: #b2b4b2; line-height: 1.1; margin-top: 1px; letter-spacing: 1px; }
+    .ic-label { font-family: 'VT323', monospace; font-size: 12px; color: #707372; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
 
     /* ── ZONE B: stats bar ── */
     #zone-b {
@@ -63,101 +130,118 @@
       display: flex;
       align-items: center;
       justify-content: space-around;
-      padding: 0 12px;
-      background: #1C1C1E;
-      border-top: 0.5px solid #38383A;
-      border-bottom: 0.5px solid #38383A;
+      padding: 0 10px;
+      background: #1a1a1e;
+      border-top: 1px solid #54585a;
+      border-bottom: 1px solid #54585a;
     }
 
-    .hud-item  { display: flex; flex-direction: column; align-items: center; gap: 1px; }
-    .hud-label { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.55); letter-spacing: 0.06px; text-transform: uppercase; }
-    .hud-value { font-size: 17px; font-weight: 600; color: #FFF; line-height: 1; letter-spacing: -0.43px; }
-    .hud-value.timesig  { color: #5CB8FF; font-size: 15px; }
-    .hud-value.bpm      { color: #5CB8FF; font-size: 15px; }
-    .hud-value.streak   { color: #FEDF43; }
-    .hud-value.accuracy { color: #4AE968; font-size: 15px; }
+    .hud-item  { display: flex; flex-direction: column; align-items: center; gap: 0px; }
+    .hud-label { font-family: 'VT323', monospace; font-size: 11px; color: #707372; letter-spacing: 1px; text-transform: uppercase; }
+    .hud-value { font-family: 'VT323', monospace; font-size: 19px; color: #b2b4b2; line-height: 1; letter-spacing: 1px; }
+    .hud-value.timesig  { color: #a7a4e0; font-size: 17px; }
+    .hud-value.bpm      { color: #a7a4e0; font-size: 17px; }
+    .hud-value.streak   { color: #c6b955; }
+    .hud-value.accuracy { color: #86b460; font-size: 17px; }
 
-    .hud-sep { width: 0.5px; height: 22px; background: #38383A; flex-shrink: 0; }
+    .hud-sep { width: 1px; height: 22px; background: #54585a; flex-shrink: 0; }
 
     .beat-dots { display: flex; gap: 5px; align-items: center; }
-    .beat-dot  { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: background 0.08s, transform 0.08s; }
-    .beat-dot.active       { background: #5CB8FF; transform: scale(1.4); }
-    .beat-dot.active.beat1 { background: #FFFFFF; }
+    .beat-dot  { width: 6px; height: 6px; border-radius: 1px; background: rgba(84,88,90,0.55); transition: background 0.08s, transform 0.08s; }
+    .beat-dot.active       { background: #a7a4e0; transform: scale(1.4); }
+    .beat-dot.active.beat1 { background: #b2b4b2; }
 
     .phase-badge {
-      font-size: 15px; font-weight: 400;
-      padding: 3px 8px; border-radius: 20px; border: 0.5px solid;
-      letter-spacing: -0.23px; text-align: center; max-width: 80px; line-height: 1.3;
+      font-family: 'VT323', monospace;
+      font-size: 13px;
+      padding: 2px 7px; border-radius: 2px; border: 1px solid;
+      letter-spacing: 1px; text-align: center; max-width: 84px; line-height: 1.4;
     }
 
     .hud-end-btn {
-      padding: 5px 12px;
-      background: rgba(255,97,101,0.12);
-      border: 0.5px solid rgba(255,97,101,0.35);
-      border-radius: 20px;
-      color: #FF6165;
-      font-size: 10px; font-weight: 600; letter-spacing: 0.4px;
-      cursor: pointer; font-family: inherit;
-      transition: background 0.15s;
+      padding: 4px 10px;
+      background: rgba(191,91,91,0.12);
+      border: 1px solid rgba(191,91,91,0.40);
+      border-radius: 2px;
+      color: #bf5b5b;
+      font-family: 'VT323', monospace;
+      font-size: 13px; letter-spacing: 1px;
+      cursor: pointer;
+      transition: background 0.1s;
       white-space: nowrap; touch-action: manipulation;
     }
-    .hud-end-btn:active { background: rgba(255,97,101,0.32); }
+    .hud-end-btn:active { background: rgba(191,91,91,0.32); }
+
+    /* ── MIDI Volume slider ── */
+    .vol-wrap { display: flex; flex-direction: column; align-items: center; gap: 0px; }
+    .vol-label { font-family: 'VT323', monospace; font-size: 11px; color: #707372; letter-spacing: 1px; text-transform: uppercase; }
+    .vol-row   { display: flex; align-items: center; gap: 4px; }
+    .vol-icon  { font-size: 11px; line-height: 1; user-select: none; }
+    #midi-vol  {
+      -webkit-appearance: none; appearance: none;
+      width: 58px; height: 4px; border-radius: 0;
+      background: linear-gradient(to right, #a7a4e0 var(--vol-pct, 55%), rgba(84,88,90,0.4) var(--vol-pct, 55%));
+      outline: none; cursor: pointer; touch-action: manipulation;
+    }
+    #midi-vol::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 13px; height: 13px; border-radius: 0;
+      background: #b2b4b2;
+      box-shadow: 2px 2px 0 #514689;
+    }
+    #midi-vol::-moz-range-thumb {
+      width: 13px; height: 13px; border-radius: 0; border: none;
+      background: #b2b4b2; box-shadow: 2px 2px 0 #514689;
+    }
 
     /* ── ZONE C: touch pads at bottom ── */
     #zone-c {
       flex: 0 0 auto;
-      display: flex;
-      flex-direction: row;
-      align-items: stretch;
-      gap: 10px;
-      padding: 12px 14px;
-      padding-bottom: max(12px, env(safe-area-inset-bottom));
-      background: #000000;
-      border-top: 0.5px solid #38383A;
+      display: flex; flex-direction: row;
+      align-items: stretch; gap: 8px;
+      padding: 10px 12px;
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+      background: #0d0d11;
+      border-top: 1px solid #54585a;
     }
 
     /* ── TOUCH PAD buttons ── */
     .key-btn {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      border: none; cursor: pointer; position: relative;
-      gap: 5px;
+      border: none; cursor: pointer; position: relative; gap: 4px;
       touch-action: manipulation;
-      transition: transform 0.05s ease, filter 0.05s ease, opacity 0.3s ease;
+      transition: transform 0.05s ease, opacity 0.3s ease;
     }
-
     .key-btn.touch-pad {
-      flex: 1 1 0;
-      min-width: 0;
-      height: 110px;
-      border-radius: 20px;
-      border: 0.5px solid rgba(255,255,255,0.17);
+      flex: 1 1 0; min-width: 0; height: 108px;
+      border-radius: 6px; border: 2px solid;
     }
 
-    .key-glyph { font-size: 26px; font-weight: 600; line-height: 1; letter-spacing: -0.31px; }
-    .key-label { font-size: 11px; font-weight: 400; letter-spacing: 0.06px; text-transform: uppercase; opacity: 0.7; }
+    .key-glyph { font-family: 'VT323', monospace; font-size: 22px; line-height: 1; letter-spacing: 1px; }
+    .key-label { font-family: 'VT323', monospace; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.8; }
 
-    /* Key colors */
-    .kb-kick  { background: rgba(92,184,255,0.12);  color: #5CB8FF; border-color: rgba(92,184,255,0.25) !important; }
-    .kb-ftom  { background: rgba(234,141,255,0.12); color: #EA8DFF; border-color: rgba(234,141,255,0.25) !important; }
-    .kb-snare { background: rgba(255,160,86,0.12);  color: #FFA056; border-color: rgba(255,160,86,0.25) !important; }
-    .kb-hihat { background: rgba(254,223,67,0.12);  color: #FEDF43; border-color: rgba(254,223,67,0.25) !important; }
-    .kb-crash { background: rgba(255,97,101,0.12);  color: #FF6165; border-color: rgba(255,97,101,0.25) !important; }
+    /* Key colors — new palette */
+    .kb-kick  { background: rgba(191,91,91,0.10);  color: #bf5b5b; border-color: rgba(191,91,91,0.32)  !important; box-shadow: 3px 3px 0 rgba(191,91,91,0.22); }
+    .kb-ftom  { background: rgba(60,141,136,0.10); color: #3c8d88; border-color: rgba(60,141,136,0.32) !important; box-shadow: 3px 3px 0 rgba(60,141,136,0.22); }
+    .kb-snare { background: rgba(198,185,85,0.10); color: #c6b955; border-color: rgba(198,185,85,0.32) !important; box-shadow: 3px 3px 0 rgba(198,185,85,0.22); }
+    .kb-hihat { background: rgba(134,180,96,0.10); color: #86b460; border-color: rgba(134,180,96,0.32) !important; box-shadow: 3px 3px 0 rgba(134,180,96,0.22); }
+    .kb-crash { background: rgba(167,164,224,0.10);color: #a7a4e0; border-color: rgba(167,164,224,0.32)!important; box-shadow: 3px 3px 0 rgba(167,164,224,0.22); }
 
-    /* Pressed */
-    .key-btn.pressed { transform: scale(0.91); filter: brightness(1.5); }
-    .kb-kick.pressed  { background: rgba(92,184,255,0.40);  box-shadow: 0 0 24px rgba(92,184,255,0.50); }
-    .kb-ftom.pressed  { background: rgba(234,141,255,0.40); box-shadow: 0 0 24px rgba(234,141,255,0.50); }
-    .kb-snare.pressed { background: rgba(255,160,86,0.40);  box-shadow: 0 0 24px rgba(255,160,86,0.50); }
-    .kb-hihat.pressed { background: rgba(254,223,67,0.40);  box-shadow: 0 0 24px rgba(254,223,67,0.50); }
-    .kb-crash.pressed { background: rgba(255,97,101,0.40);  box-shadow: 0 0 24px rgba(255,97,101,0.50); }
+    /* Pressed — pixel "push-down" feel */
+    .key-btn.pressed { transform: translate(3px, 3px); }
+    .kb-kick.pressed  { background: rgba(191,91,91,0.38);  box-shadow: none; }
+    .kb-ftom.pressed  { background: rgba(60,141,136,0.38); box-shadow: none; }
+    .kb-snare.pressed { background: rgba(198,185,85,0.38); box-shadow: none; }
+    .kb-hihat.pressed { background: rgba(134,180,96,0.38); box-shadow: none; }
+    .kb-crash.pressed { background: rgba(167,164,224,0.38);box-shadow: none; }
 
     /* Locked */
-    .key-btn.locked { opacity: 0.2; filter: grayscale(0.9); cursor: default; pointer-events: none; }
+    .key-btn.locked { opacity: 0.18; filter: grayscale(1); cursor: default; pointer-events: none; }
 
     @keyframes unlockPop {
       0%   { transform: scale(1);    filter: brightness(1);   }
-      30%  { transform: scale(1.18); filter: brightness(2.2); }
+      30%  { transform: scale(1.18); filter: brightness(2.0); }
       60%  { transform: scale(0.96); }
       100% { transform: scale(1);    filter: brightness(1);   }
     }
@@ -166,119 +250,143 @@
     /* ── OVERLAYS ── */
     .overlay {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.88);
-      backdrop-filter: blur(24px) saturate(1.6);
-      -webkit-backdrop-filter: blur(24px) saturate(1.6);
+      background: rgba(13,13,17,0.97);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      z-index: 200; gap: 16px;
+      z-index: 200; gap: 14px;
     }
 
-    .overlay-title { font-size: 34px; font-weight: 400; color: #FFF; letter-spacing: 0.4px; }
-    .overlay-sub   { font-size: 13px; font-weight: 400; color: rgba(235,235,245,0.70); letter-spacing: -0.08px; text-transform: uppercase; }
+    .overlay-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(15px, 3.8vw, 20px);
+      color: #b2b4b2;
+      letter-spacing: 2px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .overlay-sub {
+      font-family: 'VT323', monospace;
+      font-size: 17px; color: #707372;
+      letter-spacing: 3px; text-transform: uppercase;
+    }
 
-    .phase-preview { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-
+    .phase-preview { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; }
     .phase-pip {
       display: flex; align-items: center; gap: 6px;
-      font-size: 13px; font-weight: 400; color: rgba(235,235,245,0.70);
-      background: rgba(255,255,255,0.07); padding: 6px 13px; border-radius: 20px;
-      border: 0.5px solid rgba(255,255,255,0.1);
-      letter-spacing: -0.08px;
+      font-family: 'VT323', monospace; font-size: 14px; color: #707372;
+      background: #1a1a1e; padding: 5px 11px;
+      border-radius: 2px; border: 1px solid #54585a;
+      letter-spacing: 1px;
     }
-    .phase-pip .pip-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .phase-pip .pip-time { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.55); margin-left: 2px; letter-spacing: 0.06px; }
+    .phase-pip .pip-dot  { width: 8px; height: 8px; border-radius: 1px; flex-shrink: 0; }
+    .phase-pip .pip-time { font-family: 'VT323', monospace; font-size: 12px; color: #54585a; margin-left: 2px; letter-spacing: 1px; }
 
     .overlay-hint {
-      font-size: 13px; font-weight: 400; color: rgba(235,235,245,0.55); text-align: center;
-      max-width: 460px; line-height: 1.8; letter-spacing: -0.08px;
+      font-family: 'VT323', monospace;
+      font-size: 15px; color: #54585a; text-align: center;
+      max-width: 440px; line-height: 1.7; letter-spacing: 1px;
     }
 
     .cta-btn {
-      margin-top: 6px; padding: 15px 44px;
-      background: #5CB8FF; color: #000000;
-      border: none; border-radius: 14px;
-      font-size: 17px; font-weight: 400; letter-spacing: -0.43px;
-      cursor: pointer; font-family: inherit; touch-action: manipulation;
+      margin-top: 4px; padding: 13px 38px;
+      background: #514689; color: #b2b4b2;
+      border: 2px solid #a7a4e0; border-radius: 2px;
+      font-family: 'VT323', monospace;
+      font-size: 20px; letter-spacing: 4px;
+      cursor: pointer; touch-action: manipulation;
+      box-shadow: 4px 4px 0 #1a1a1e;
+      transition: transform 0.05s, box-shadow 0.05s;
     }
-    .cta-btn:active { filter: brightness(0.9); }
+    .cta-btn:active { transform: translate(4px,4px); box-shadow: none; }
 
-    .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 310px; }
-    .res-card { background: rgba(28,28,30,0.80); border-radius: 20px; padding: 16px; text-align: center; border: 0.5px solid rgba(255,255,255,0.10); }
-    .res-val  { font-size: 30px; font-weight: 700; color: #FFF; letter-spacing: -1px; }
-    .res-lbl  { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.55); text-transform: uppercase; letter-spacing: 0.06px; margin-top: 3px; }
-    .res-btns { display: flex; gap: 10px; margin-top: 8px; }
+    .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 300px; }
+    .res-card {
+      background: #1a1a1e; border-radius: 2px; padding: 14px;
+      text-align: center; border: 1px solid #54585a;
+      box-shadow: 3px 3px 0 #514689;
+    }
+    .res-val  { font-family: 'VT323', monospace; font-size: 34px; color: #b2b4b2; letter-spacing: 2px; }
+    .res-lbl  { font-family: 'VT323', monospace; font-size: 12px; color: #707372; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+    .res-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; align-items: center; }
+    .res-btn-row { display: flex; gap: 10px; }
+    .cta-btn-secondary {
+      padding: 11px 22px;
+      background: #1a1a1e; border: 1px solid #54585a; border-radius: 2px;
+      color: #707372;
+      font-family: 'VT323', monospace; font-size: 18px; letter-spacing: 2px;
+      cursor: pointer; touch-action: manipulation;
+      box-shadow: 2px 2px 0 #252528;
+      transition: color 0.1s, background 0.1s;
+    }
+    .cta-btn-secondary:active { transform: translate(2px,2px); box-shadow: none; color: #b2b4b2; }
 
     /* ── SONG SELECT SCREEN ── */
-    #song-screen { gap: 20px; }
+    #song-screen { gap: 18px; }
 
     #song-list {
-      display: flex;
-      gap: 12px;
-      padding: 0 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-      max-width: 640px;
+      display: flex; gap: 10px;
+      padding: 0 14px;
+      justify-content: center; flex-wrap: wrap;
+      max-width: 620px;
     }
-
     .song-card {
-      flex: 1 1 160px;
-      max-width: 190px;
-      background: rgba(28,28,30,0.80);
-      border: 0.5px solid rgba(255,255,255,0.10);
-      border-radius: 20px;
-      padding: 22px 16px 18px;
-      cursor: pointer;
-      text-align: center;
+      flex: 1 1 155px; max-width: 185px;
+      background: #1a1a1e;
+      border: 1px solid #54585a; border-radius: 4px;
+      padding: 18px 14px 15px;
+      cursor: pointer; text-align: center;
       touch-action: manipulation;
-      transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 7px;
+      transition: transform 0.08s, border-color 0.12s, box-shadow 0.12s;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      box-shadow: 3px 3px 0 #252528;
     }
-    .song-card:active { transform: scale(0.95); }
+    .song-card:active { transform: translate(3px,3px); box-shadow: none; }
     .song-card.selected {
-      border-color: var(--sc, #5CB8FF);
-      box-shadow: 0 0 22px rgba(0,0,0,0.4);
+      border-color: var(--sc, #a7a4e0);
+      box-shadow: 4px 4px 0 var(--sc, #514689);
     }
 
-    .song-emoji  { font-size: 34px; line-height: 1; margin-bottom: 2px; }
-    .song-name   { font-size: 15px; font-weight: 600; color: #fff; letter-spacing: -0.23px; line-height: 1.2; }
-    .song-tempo  { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.55); letter-spacing: 0.06px; }
-    .song-vibe   { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.38); letter-spacing: 0.06px; }
+    .song-emoji  { font-size: 30px; line-height: 1; margin-bottom: 2px; }
+    .song-name   { font-family: 'VT323', monospace; font-size: 17px; color: #b2b4b2; letter-spacing: 1px; line-height: 1.2; }
+    .song-tempo  { font-family: 'VT323', monospace; font-size: 13px; color: #707372; letter-spacing: 1px; }
+    .song-vibe   { font-family: 'VT323', monospace; font-size: 12px; color: #54585a; letter-spacing: 1px; }
     .song-status {
-      margin-top: 4px;
-      font-size: 9px; font-weight: 500; letter-spacing: 0.5px;
+      margin-top: 3px;
+      font-family: 'VT323', monospace; font-size: 12px; letter-spacing: 1px;
       text-transform: uppercase;
-      padding: 3px 9px; border-radius: 10px;
-      background: rgba(255,255,255,0.06);
-      color: rgba(235,235,245,0.35);
+      padding: 2px 8px; border-radius: 2px;
+      background: rgba(26,26,30,0.9); color: #54585a; border: 1px solid #54585a;
     }
-    .song-status.ready { background: rgba(74,233,104,0.12); color: #4AE968; }
+    .song-status.ready { background: rgba(134,180,96,0.12); color: #86b460; border-color: rgba(134,180,96,0.38); }
 
     .song-skip {
-      font-size: 11px; color: rgba(235,235,245,0.35);
-      letter-spacing: 0.06px; cursor: pointer; touch-action: manipulation;
+      font-family: 'VT323', monospace; font-size: 14px; color: #54585a;
+      letter-spacing: 1px; cursor: pointer; touch-action: manipulation;
       text-decoration: underline; text-underline-offset: 3px;
     }
-    .song-skip:active { color: rgba(235,235,245,0.7); }
+    .song-skip:active { color: #707372; }
 
     /* ── COUNTDOWN ── */
     #countdown-screen {
       position: fixed; inset: 0;
       display: none; align-items: center; justify-content: center;
       z-index: 300;
-      background: rgba(4,4,18,0.8);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(13,13,17,0.92);
     }
     #countdown-screen.visible { display: flex; }
     #cd-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    #cd-number { font-size: 140px; font-weight: 900; color: #FFF; letter-spacing: -4px; line-height: 1; }
-    #cd-sub    { font-size: 13px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+    #cd-number {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 100px; color: #b2b4b2; line-height: 1;
+      text-shadow: 6px 6px 0 #514689;
+    }
+    #cd-sub {
+      font-family: 'VT323', monospace;
+      font-size: 18px; letter-spacing: 5px;
+      text-transform: uppercase; color: #707372;
+    }
     #cd-number.pop { animation: cdPop 0.88s ease forwards; }
-    #cd-number.go  { font-size: 88px; letter-spacing: 10px; animation: cdGo 0.9s ease forwards; }
+    #cd-number.go  { font-size: 72px; letter-spacing: 8px; animation: cdGo 0.9s ease forwards; }
 
     @keyframes cdPop {
       0%   { transform: scale(1.6); opacity: 0; }
@@ -296,6 +404,103 @@
 </head>
 <body>
 
+<!-- ══ SPLASH SCREEN ══ -->
+<div id="splash-screen">
+  <!-- Cartridge logo — SVG modified for dark background: fills lightened, strokes visible -->
+  <svg id="splash-logo" viewBox="0 0 1637.14 475" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <style>
+        .sc1 { stroke: #ffffff; stroke-width: 7px; }
+        .sc1, .sc2, .sc3, .sc4, .sc5 { stroke-linecap: round; }
+        .sc1, .sc2, .sc3, .sc6 { fill: none; }
+        .sc1, .sc2, .sc4, .sc5 { stroke-linejoin: round; }
+        .sc2, .sc3, .sc4, .sc6, .sc5 { stroke: #707372; }
+        .sc2, .sc5 { stroke-width: 10px; }
+        .sc3 { stroke-width: 11px; }
+        .sc3, .sc6 { stroke-miterlimit: 10; }
+        .sc4 { stroke-width: 8px; }
+        .sc6 { stroke-width: 12px; }
+        .sc7 { fill: #b2b4b2; }  /* cartridge body */
+        .sc8 { fill: #c6b955; }  /* cartridge label — golden */
+        .sc9 { fill: #252528; }  /* dark outline fill */
+        .sc10 { fill: #ffffff; } /* white smiley lines */
+      </style>
+    </defs>
+    <!-- Cartridge connector strip -->
+    <rect class="sc10" x="532.77" y="425.8" width="571.6" height="38.8" rx="14" ry="14"/>
+    <path class="sc9" d="M1090.37,430.8c4.95,0,9,4.05,9,9v10.8c0,4.95-4.05,9-9,9h-543.6c-4.95,0-9-4.05-9-9v-10.8c0-4.95,4.05-9,9-9h543.6M1090.37,420.8h-543.6c-10.48,0-19,8.52-19,19v10.8c0,10.48,8.52,19,19,19h543.6c10.48,0,19-8.52,19-19v-10.8c0-10.48-8.52-19-19-19h0Z"/>
+    <!-- Connector teeth -->
+    <line class="sc5" x1="552.17" y1="438" x2="552.17" y2="452.4"/>
+    <line class="sc5" x1="570.54" y1="438" x2="570.54" y2="452.4"/>
+    <line class="sc5" x1="588.91" y1="438" x2="588.91" y2="452.4"/>
+    <line class="sc5" x1="607.29" y1="438" x2="607.29" y2="452.4"/>
+    <line class="sc5" x1="625.66" y1="438" x2="625.66" y2="452.4"/>
+    <line class="sc5" x1="644.03" y1="438" x2="644.03" y2="452.4"/>
+    <line class="sc5" x1="662.4"  y1="438" x2="662.4"  y2="452.4"/>
+    <line class="sc5" x1="680.78" y1="438" x2="680.78" y2="452.4"/>
+    <line class="sc5" x1="699.15" y1="438" x2="699.15" y2="452.4"/>
+    <line class="sc5" x1="717.52" y1="438" x2="717.52" y2="452.4"/>
+    <line class="sc5" x1="735.89" y1="438" x2="735.89" y2="452.4"/>
+    <line class="sc5" x1="754.26" y1="438" x2="754.26" y2="452.4"/>
+    <line class="sc5" x1="772.64" y1="438" x2="772.64" y2="452.4"/>
+    <line class="sc5" x1="791.01" y1="438" x2="791.01" y2="452.4"/>
+    <line class="sc5" x1="809.38" y1="438" x2="809.38" y2="452.4"/>
+    <line class="sc5" x1="827.75" y1="438" x2="827.75" y2="452.4"/>
+    <line class="sc5" x1="846.13" y1="438" x2="846.13" y2="452.4"/>
+    <line class="sc5" x1="864.5"  y1="438" x2="864.5"  y2="452.4"/>
+    <line class="sc5" x1="882.87" y1="438" x2="882.87" y2="452.4"/>
+    <line class="sc5" x1="901.24" y1="438" x2="901.24" y2="452.4"/>
+    <line class="sc5" x1="919.62" y1="438" x2="919.62" y2="452.4"/>
+    <line class="sc5" x1="937.99" y1="438" x2="937.99" y2="452.4"/>
+    <line class="sc5" x1="956.36" y1="438" x2="956.36" y2="452.4"/>
+    <line class="sc5" x1="974.73" y1="438" x2="974.73" y2="452.4"/>
+    <line class="sc5" x1="993.11" y1="438" x2="993.11" y2="452.4"/>
+    <line class="sc5" x1="1011.48" y1="438" x2="1011.48" y2="452.4"/>
+    <line class="sc5" x1="1029.85" y1="438" x2="1029.85" y2="452.4"/>
+    <line class="sc5" x1="1048.22" y1="438" x2="1048.22" y2="452.4"/>
+    <line class="sc5" x1="1066.6"  y1="438" x2="1066.6"  y2="452.4"/>
+    <line class="sc5" x1="1084.97" y1="438" x2="1084.97" y2="452.4"/>
+    <!-- Cartridge body sides -->
+    <rect class="sc7" x="471.27" y="25.9" width="694.6" height="421" rx="3.5" ry="3.5"/>
+    <path class="sc9" d="M1160.37,31.4v410H476.77V31.4h683.6M1162.37,20.4H474.77c-4.95,0-9,4.05-9,9v414c0,4.95,4.05,9,9,9h687.6c4.95,0,9-4.05,9-9V29.4c0-4.95-4.05-9-9-9h0Z"/>
+    <!-- Smiley face lines (white) -->
+    <line class="sc1" x1="868.97" y1="286.8" x2="868.97" y2="387.6"/>
+    <line class="sc1" x1="768.17" y1="387.6" x2="768.17" y2="286.8"/>
+    <!-- Horizontal rib lines -->
+    <line class="sc4" x1="1171.37" y1="92.4"  x2="465.77" y2="92.4"/>
+    <line class="sc4" x1="1171.31" y1="164.4" x2="465.9"  y2="164.4"/>
+    <line class="sc4" x1="1171.26" y1="236.4" x2="466.02" y2="236.4"/>
+    <line class="sc4" x1="1171.2"  y1="308.4" x2="466.15" y2="308.4"/>
+    <line class="sc4" x1="1171.14" y1="380.4" x2="466.28" y2="380.4"/>
+    <!-- Inner cartridge back -->
+    <path class="sc7" d="M1077.77,423.6V22.2c0-4.95-4.05-9-9-9h-500.4c-4.95,0-9,4.05-9,9v401.4"/>
+    <path class="sc2" d="M1077.77,423.6V22.2c0-4.95-4.05-9-9-9h-500.4c-4.95,0-9,4.05-9,9v401.4"/>
+    <!-- Inner lower curve -->
+    <path class="sc2" d="M1056.17,445.2v-154.66c0-13.99-11.98-25.34-26.76-25.34h-421.68c-14.78,0-26.76,11.34-26.76,25.34v154.66"/>
+    <!-- Label area -->
+    <rect class="sc7" x="580.97" y="6" width="475.2" height="208.8" rx="18" ry="18"/>
+    <rect class="sc6" x="580.97" y="6" width="475.2" height="208.8" rx="18" ry="18"/>
+    <path class="sc8" d="M606.21,196.9c-4.05,0-7.34-3.29-7.34-7.34V9.5h439.4v180.06c0,4.05-3.29,7.34-7.34,7.34h-424.71Z"/>
+    <path class="sc9" d="M1034.77,13v176.56c0,2.12-1.72,3.84-3.84,3.84h-424.71c-2.12,0-3.84-1.72-3.84-3.84V13h432.4M1041.77,6h-446.4v183.56c0,5.99,4.86,10.84,10.84,10.84h424.71c5.99,0,10.84-4.86,10.84-10.84V6h0Z"/>
+    <!-- Side dots -->
+    <path class="sc7" d="M1128.17,425.3c-.94,0-1.7-.76-1.7-1.7s.76-1.7,1.7-1.7,1.7.76,1.7,1.7-.76,1.7-1.7,1.7Z"/>
+    <path class="sc9" d="M1128.17,416.4c-3.98,0-7.2,3.22-7.2,7.2s3.22,7.2,7.2,7.2,7.2-3.22,7.2-7.2-3.22-7.2-7.2-7.2h0Z"/>
+    <path class="sc7" d="M516.17,425.3c-.94,0-1.7-.76-1.7-1.7s.76-1.7,1.7-1.7,1.7.76,1.7,1.7-.76,1.7-1.7,1.7Z"/>
+    <path class="sc9" d="M516.17,416.4c-3.98,0-7.2,3.22-7.2,7.2s3.22,7.2,7.2,7.2,7.2-3.22,7.2-7.2-3.22-7.2-7.2-7.2h0Z"/>
+    <!-- Side rails -->
+    <line class="sc2" x1="1020.17" y1="265.2" x2="1020.17" y2="380.4"/>
+    <line class="sc2" x1="616.97"  y1="265.2" x2="616.97"  y2="380.4"/>
+    <!-- Smiley eyes -->
+    <rect class="sc9" x="696.17" y="42" width="49.96" height="49.96" rx="9" ry="9"/>
+    <rect class="sc9" x="891.01" y="42" width="49.96" height="49.96" rx="9" ry="9"/>
+    <!-- Smiley mouth arc -->
+    <path class="sc3" d="M919.37,142.8v12.6c0,4.95-4.05,9-9,9h-176.4c-4.95,0-9-4.05-9-9v-12.6"/>
+  </svg>
+  <div id="splash-title">BIT BEATS</div>
+  <div id="splash-sub">Rhythm Education</div>
+  <div id="splash-tap">▶ TAP TO BEGIN</div>
+</div>
+
 <!-- ══ COUNTDOWN ══ -->
 <div id="countdown-screen">
   <div id="cd-wrap">
@@ -307,7 +512,7 @@
 <!-- ══ SONG SELECT SCREEN ══ -->
 <div class="overlay" id="song-screen">
   <div class="overlay-title">SELECT TRACK</div>
-  <div class="overlay-sub">Choose a song to play along with</div>
+  <div class="overlay-sub">Choose your battle music</div>
   <div id="song-list"><!-- cards injected by JS --></div>
   <button type="button" class="cta-btn" id="song-next-btn">Continue →</button>
   <div class="song-skip" id="song-skip-btn">Skip · Practice without music</div>
@@ -315,42 +520,42 @@
 
 <!-- ══ START SCREEN ══ -->
 <div class="overlay" id="start-screen" style="display:none;">
-  <div class="overlay-title">RHYTHMCODE</div>
-  <div class="overlay-sub">Beginner · Lesson 1 · Building the Beat</div>
+  <div class="overlay-title">BIT BEATS</div>
+  <div class="overlay-sub">Lesson 01 — Build the Beat</div>
 
   <div class="phase-preview">
     <div class="phase-pip">
-      <div class="pip-dot" style="background:#5CB8FF"></div>
-      Space — Kick <span class="pip-time">0s</span>
+      <div class="pip-dot" style="background:#bf5b5b"></div>
+      SPC — Kick <span class="pip-time">0s</span>
     </div>
     <div class="phase-pip">
-      <div class="pip-dot" style="background:#FEDF43"></div>
+      <div class="pip-dot" style="background:#86b460"></div>
       T — Hi-Hat <span class="pip-time">~5s</span>
     </div>
     <div class="phase-pip">
-      <div class="pip-dot" style="background:#FFA056"></div>
+      <div class="pip-dot" style="background:#c6b955"></div>
       S — Snare <span class="pip-time">~10s</span>
     </div>
     <div class="phase-pip">
-      <div class="pip-dot" style="background:#FF6165"></div>
+      <div class="pip-dot" style="background:#a7a4e0"></div>
       I — Crash <span class="pip-time">~15s</span>
     </div>
     <div class="phase-pip">
-      <div class="pip-dot" style="background:#EA8DFF"></div>
+      <div class="pip-dot" style="background:#3c8d88"></div>
       O — Floor Tom <span class="pip-time">~20s</span>
     </div>
-    <div style="width:100%;text-align:center;font-size:10px;color:#48484A;margin-top:4px;">
-      Low → High · Kick · Floor · Snare · Hi-Hat · Crash
+    <div style="width:100%;text-align:center;font-family:'VT323',monospace;font-size:13px;color:#54585a;margin-top:4px;letter-spacing:1px;">
+      LOW → HIGH · KICK · FLOOR · SNARE · HI-HAT · CRASH
     </div>
   </div>
 
   <div class="overlay-hint">
-    Notes fall from the top — tap the pad (or key) as each pill hits the line.<br>
-    The beat builds instrument by instrument over ~20 seconds.
+    Notes fall from the top — tap the pad as each pill hits the line.<br>
+    The beat builds instrument by instrument.
   </div>
 
-  <button class="cta-btn" id="start-btn">▶  Start Building</button>
-  <div class="overlay-hint" style="font-size:10px; color:#3A3A3C; margin-top:-4px;">Tap a pad or press any key to begin</div>
+  <button class="cta-btn" id="start-btn">▶  START</button>
+  <div class="overlay-hint" style="font-size:13px;color:#54585a;margin-top:-4px;">TAP A PAD OR PRESS ANY KEY</div>
 </div>
 
 <!-- ══ RESULTS SCREEN ══ -->
@@ -364,7 +569,10 @@
     <div class="res-card"><div class="res-val" id="res-score">0</div><div class="res-lbl">Score</div></div>
   </div>
   <div class="res-btns">
-    <button type="button" class="cta-btn" id="retry-btn">↺  Retry</button>
+    <button type="button" class="cta-btn" id="retry-btn">↺  Play Again</button>
+    <div class="res-btn-row">
+      <button type="button" class="cta-btn-secondary" id="change-track-btn">🎵  Change Track</button>
+    </div>
   </div>
 </div>
 
@@ -511,8 +719,17 @@
     <div class="hud-sep"></div>
     <div class="hud-item">
       <div class="phase-badge" id="phase-badge"
-           style="color:#5CB8FF; border-color:rgba(92,184,255,0.4); background:rgba(92,184,255,0.1);">
+           style="color:#bf5b5b; border-color:rgba(191,91,91,0.4); background:rgba(191,91,91,0.1);">
         Kick
+      </div>
+    </div>
+    <div class="hud-sep"></div>
+    <div class="vol-wrap">
+      <div class="vol-label">Music</div>
+      <div class="vol-row">
+        <span class="vol-icon">🔈</span>
+        <input type="range" id="midi-vol" min="0" max="100" value="55" step="1">
+        <span class="vol-icon">🔊</span>
       </div>
     </div>
     <div class="hud-sep"></div>
@@ -567,13 +784,14 @@ const WIN_GOOD      = 165;
 const MISS_AFTER    = 215;
 
 // Lane order: low → high pitch  (Kick, Floor Tom, Snare, Hi-Hat, Crash)
-const NOTE_COLOR = ['#5CB8FF','#EA8DFF','#FFA056','#FEDF43','#FF6165'];
+const NOTE_COLOR = ['#bf5b5b','#3c8d88','#c6b955','#86b460','#a7a4e0'];
+// Kick=red, FloorTom=teal, Snare=gold, HiHat=green, Crash=lavender
 const LANE_TINT  = [
-  'rgba(92,184,255,0.055)',
-  'rgba(234,141,255,0.055)',
-  'rgba(255,160,86,0.055)',
-  'rgba(254,223,67,0.055)',
-  'rgba(255,97,101,0.055)',
+  'rgba(191,91,91,0.055)',
+  'rgba(60,141,136,0.055)',
+  'rgba(198,185,85,0.055)',
+  'rgba(134,180,96,0.055)',
+  'rgba(167,164,224,0.055)',
 ];
 const LANE_NAMES = ['Kick','Floor Tom','Snare','Hi-Hat','Crash'];
 const KEY_IDS    = ['key-space','key-o','key-s','key-t','key-i'];
@@ -593,11 +811,11 @@ const KEY_TO_LANE = { ' ':0, 'o':1, 's':2, 't':3, 'i':4 };
 // Introduction order: Kick → Hi-Hat → Snare → Crash → Floor Tom
 // Lane numbers reflect pitch order: 0=Kick 1=Floor 2=Snare 3=HiHat 4=Crash
 const PHASES = [
-  { startBeat:  0, lane: 0, name: 'Kick Drum',  key: 'SPACE', color: '#5CB8FF', unlockBeat: -1 },
-  { startBeat:  5, lane: 3, name: 'Hi-Hat',     key: 'T',     color: '#FEDF43', unlockBeat:  3 },
-  { startBeat: 11, lane: 2, name: 'Snare',      key: 'S',     color: '#FFA056', unlockBeat:  9 },
-  { startBeat: 16, lane: 4, name: 'Crash',      key: 'I',     color: '#FF6165', unlockBeat: 14 },
-  { startBeat: 22, lane: 1, name: 'Floor Tom',  key: 'O',     color: '#EA8DFF', unlockBeat: 20 },
+  { startBeat:  0, lane: 0, name: 'Kick Drum', key: 'SPACE', color: '#bf5b5b', unlockBeat: -1 },
+  { startBeat:  5, lane: 3, name: 'Hi-Hat',    key: 'T',     color: '#86b460', unlockBeat:  3 },
+  { startBeat: 11, lane: 2, name: 'Snare',     key: 'S',     color: '#c6b955', unlockBeat:  9 },
+  { startBeat: 16, lane: 4, name: 'Crash',     key: 'I',     color: '#a7a4e0', unlockBeat: 14 },
+  { startBeat: 22, lane: 1, name: 'Floor Tom', key: 'O',     color: '#3c8d88', unlockBeat: 20 },
 ];
 
 // ═══════════════════════════════════════════════════════════
@@ -607,14 +825,15 @@ const PHASES = [
 //  Emoji, name, vibe, and color are display-only.
 // ═══════════════════════════════════════════════════════════
 const SONGS = [
-  { id:0, name:"Frog's Theme",   file:'track1.mid', bpm:120, color:'#5CB8FF', vibe:'Upbeat · Chrono Trigger', emoji:'🐸' },
-  { id:1, name:'Chrono Trigger', file:'track2.mid', bpm:130, color:'#EA8DFF', vibe:'Epic · Adventure',        emoji:'⚔️' },
-  { id:2, name:'End of Time',    file:'track3.mid', bpm:150, color:'#FEDF43', vibe:'Fast · Atmospheric',      emoji:'⏳' },
+  { id:0, name:"Frog's Theme",   file:'track1.mid', bpm:120, color:'#86b460', vibe:'Upbeat · Chrono Trigger', emoji:'🐸' },
+  { id:1, name:'Chrono Trigger', file:'track2.mid', bpm:130, color:'#a7a4e0', vibe:'Epic · Adventure',        emoji:'⚔️' },
+  { id:2, name:'End of Time',    file:'track3.mid', bpm:150, color:'#c6b955', vibe:'Fast · Atmospheric',      emoji:'⏳' },
 ];
 
 let selectedSong  = null;   // SONGS[n] or null = practice mode
 let midiData      = null;   // parsed MIDI { bpm, ppq, totalTicks, notes[] }
 let midiScheduler = null;   // active MidiScheduler
+let midiVolume    = 0.55;   // 0–1, controlled by #midi-vol slider
 
 // ═══════════════════════════════════════════════════════════
 //  MIDI PARSER
@@ -722,7 +941,7 @@ class MidiScheduler {
     this._loopStart  = startAt;
     this._noteIdx    = 0;
     this._masterGain = this.ctx.createGain();
-    this._masterGain.gain.value = 0.55; // overall MIDI volume
+    this._masterGain.gain.value = midiVolume; // overall MIDI volume (slider-controlled)
     this._masterGain.connect(this.ctx.destination);
     this._tick();
   }
@@ -1111,7 +1330,7 @@ function drawFrame(currentTime) {
   const now  = performance.now();
 
   // ── Background
-  ctx.fillStyle = '#000000';
+  ctx.fillStyle = '#0d0d11';
   ctx.fillRect(0, 0, W, H);
 
   // ── Lane column backgrounds
@@ -1140,17 +1359,17 @@ function drawFrame(currentTime) {
 
     // Lane name at top
     const p = PHASES.find(ph => ph.lane === i);
-    ctx.font      = '600 11px -apple-system, Arial';
+    ctx.font      = '500 12px VT323, monospace';
     ctx.textAlign = 'center';
     if (isActive) {
       ctx.fillStyle = NOTE_COLOR[i] + 'BB';
-      ctx.fillText(LANE_NAMES[i], lx + lW / 2, 20);
+      ctx.fillText(LANE_NAMES[i].toUpperCase(), lx + lW / 2, 20);
     } else if (p) {
       ctx.fillStyle = NOTE_COLOR[i] + '44';
-      ctx.fillText(LANE_NAMES[i], lx + lW / 2, 20);
-      ctx.font      = '500 9px -apple-system, Arial';
+      ctx.fillText(LANE_NAMES[i].toUpperCase(), lx + lW / 2, 20);
+      ctx.font      = '400 10px VT323, monospace';
       ctx.fillStyle = NOTE_COLOR[i] + '33';
-      ctx.fillText('(' + p.key + ')', lx + lW / 2, 33);
+      ctx.fillText('[' + p.key + ']', lx + lW / 2, 33);
     }
   }
 
@@ -1176,10 +1395,10 @@ function drawFrame(currentTime) {
       ctx.fillRect(0, y - 0.75, W, 1.5);
       if (beat >= 0) {
         const barNum = (Math.floor(beat / BEATS_PER_BAR) % (PATTERN_BEATS / BEATS_PER_BAR)) + 1;
-        ctx.font      = '500 9px -apple-system, Arial';
+        ctx.font      = '400 11px VT323, monospace';
         ctx.textAlign = 'left';
-        ctx.fillStyle = 'rgba(255,255,255,0.22)';
-        ctx.fillText('BAR ' + barNum, 8, y - 4);
+        ctx.fillStyle = 'rgba(178,180,178,0.20)';
+        ctx.fillText('BAR ' + barNum, 8, y - 3);
       }
     } else {
       ctx.fillStyle = 'rgba(255,255,255,0.055)';
@@ -1309,13 +1528,13 @@ function drawFrame(currentTime) {
       const bH    = 38;
       ctx.fillStyle = banner.color + Math.round(0.18 * alpha * 255).toString(16).padStart(2,'0');
       ctx.fillRect(0, 44, W, bH);
-      ctx.font      = 'bold 13px -apple-system, Arial';
+      ctx.font      = '600 14px VT323, monospace';
       ctx.textAlign = 'center';
       ctx.fillStyle = banner.color + Math.round(alpha * 255).toString(16).padStart(2,'0');
-      ctx.fillText(banner.text, W / 2, 44 + 16);
-      ctx.font      = '500 10px -apple-system, Arial';
-      ctx.fillStyle = `rgba(255,255,255,${alpha * 0.5})`;
-      ctx.fillText(banner.subtext, W / 2, 44 + 30);
+      ctx.fillText(banner.text.toUpperCase(), W / 2, 44 + 17);
+      ctx.font      = '400 11px VT323, monospace';
+      ctx.fillStyle = `rgba(178,180,178,${alpha * 0.55})`;
+      ctx.fillText(banner.subtext, W / 2, 44 + 31);
     } else {
       banner = null;
     }
@@ -1328,7 +1547,7 @@ function drawFrame(currentTime) {
     const hexA = Math.round((1 - pct) * 255).toString(16).padStart(2,'0');
     const cx   = f.lane * lW + lW / 2;
     const fy   = hitY - 24 - pct * 44;
-    ctx.font      = 'bold 12px -apple-system, Arial';
+    ctx.font      = '600 14px VT323, monospace';
     ctx.textAlign = 'center';
     ctx.fillStyle = f.color + hexA;
     ctx.fillText(f.text, cx, fy);
@@ -1338,9 +1557,9 @@ function drawFrame(currentTime) {
   if (gameState === 'playing' && currentTime > RUN_UP_MS) {
     const cycleMs  = PATTERN_BEATS * BEAT_MS;
     const cyclePct = ((currentTime - RUN_UP_MS) % cycleMs) / cycleMs;
-    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.fillStyle = 'rgba(84,88,90,0.25)';
     ctx.fillRect(0, H - 3, W, 3);
-    ctx.fillStyle = 'rgba(191,90,242,0.55)';
+    ctx.fillStyle = 'rgba(167,164,224,0.65)';
     ctx.fillRect(0, H - 3, W * cyclePct, 3);
   }
 }
@@ -1428,7 +1647,7 @@ function handleInput(lane) {
     score += 50; streak++; totalHits++;
     if (streak > bestStreak) bestStreak = streak;
     rings.push({ lane, start: performance.now(), quality: 'good' });
-    addFeedback('GOOD', lane, '#30D158');
+    addFeedback('GOOD', lane, '#86b460');
     beatFlash = 0.6;
   }
   refreshHUD();
@@ -1543,7 +1762,7 @@ function runCountdown(onDone) {
     { text:'3', sub:'Get ready', color:'#FFFFFF', t:0 },
     { text:'2', sub:'Watch the beat', color:'#FFFFFF', t:950 },
     { text:'1', sub:'Here it comes', color:'#FFFFFF', t:1900 },
-    { text:'GO!', sub:'', color:'#30D158', t:2700, isGo:true },
+    { text:'GO!', sub:'', color:'#86b460', t:2700, isGo:true },
   ];
 
   steps.forEach(s => {
@@ -1612,9 +1831,9 @@ function startGame() {
   // Reset phase badge
   const badge = document.getElementById('phase-badge');
   badge.textContent   = 'Kick';
-  badge.style.color   = '#5CB8FF';
-  badge.style.borderColor = 'rgba(92,184,255,0.4)';
-  badge.style.background  = 'rgba(92,184,255,0.1)';
+  badge.style.color   = '#bf5b5b';
+  badge.style.borderColor = 'rgba(191,91,91,0.4)';
+  badge.style.background  = 'rgba(191,91,91,0.1)';
 
   document.getElementById('hud-accuracy').textContent = '—';
   document.getElementById('ic-score').textContent     = '—/100';
@@ -1644,7 +1863,7 @@ function finishGame() {
   const passed = acc >= 70;
 
   document.getElementById('res-title').textContent = passed ? '✓  Nice Session' : 'Keep Practicing';
-  document.getElementById('res-title').style.color = passed ? '#30D158' : '#FF9F0A';
+  document.getElementById('res-title').style.color = passed ? '#86b460' : '#c6b955';
   document.getElementById('res-sub').textContent   = acc + '% accuracy · ' + judged + ' notes judged';
   document.getElementById('res-accuracy').textContent = acc + '%';
   document.getElementById('res-streak').textContent   = bestStreak;
@@ -1660,6 +1879,12 @@ function restartGame() {
   BPM     = (midiData ? midiData.bpm : (selectedSong ? selectedSong.bpm : 65));
   BEAT_MS = 60000 / BPM;
   startGame();
+}
+
+function goToSongSelect() {
+  document.getElementById('results-screen').style.display = 'none';
+  if (midiScheduler) { midiScheduler.stop(); midiScheduler = null; }
+  showSongScreen();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1708,11 +1933,32 @@ function wireOverlayButton(id, action) {
   btn.addEventListener('touchend', go, { passive: false });
   btn.addEventListener('click',    go);
 }
-wireOverlayButton('start-btn',  startGame);
-wireOverlayButton('retry-btn',  restartGame);
-wireOverlayButton('song-next-btn', advanceFromSongScreen);
+wireOverlayButton('start-btn',       startGame);
+wireOverlayButton('retry-btn',       restartGame);
+wireOverlayButton('change-track-btn', goToSongSelect);
+wireOverlayButton('song-next-btn',   advanceFromSongScreen);
 document.getElementById('song-skip-btn').addEventListener('click', advanceFromSongScreen);
 document.getElementById('song-skip-btn').addEventListener('touchend', e => { e.preventDefault(); advanceFromSongScreen(); }, { passive: false });
+
+// ── MIDI Volume Slider ──────────────────────────────────────────
+(function() {
+  const slider = document.getElementById('midi-vol');
+  function applyVolPct(val) {
+    slider.style.setProperty('--vol-pct', val + '%');
+  }
+  applyVolPct(slider.value); // init fill
+  slider.addEventListener('input', () => {
+    const val = parseInt(slider.value, 10);
+    midiVolume = val / 100;
+    applyVolPct(val);
+    // Apply live if scheduler is running
+    if (midiScheduler && midiScheduler._masterGain) {
+      midiScheduler._masterGain.gain.setTargetAtTime(
+        midiVolume, midiScheduler.ctx.currentTime, 0.02
+      );
+    }
+  });
+})();
 
 // ═══════════════════════════════════════════════════════════
 //  RESIZE + INIT
@@ -1731,13 +1977,38 @@ window.addEventListener('orientationchange', () => {
   }, 250);
 });
 
+// ═══════════════════════════════════════════════════════════
+//  SPLASH SCREEN
+// ═══════════════════════════════════════════════════════════
+function initSplash() {
+  const splash = document.getElementById('splash-screen');
+  if (!splash) { showSongScreen(); return; }
+
+  let dismissed = false;
+  function dismiss() {
+    if (dismissed) return;
+    dismissed = true;
+    try { ensureAudio(); } catch(e) {}
+    splash.classList.add('out');
+    setTimeout(() => {
+      splash.style.display = 'none';
+      showSongScreen();
+    }, 460);
+  }
+
+  // Auto-dismiss after 3.8s (logo animates in over ~1.4s, then holds)
+  setTimeout(dismiss, 3800);
+
+  // Tap/click anywhere on splash to skip
+  splash.addEventListener('touchend', e => { e.preventDefault(); dismiss(); }, { passive: false });
+  splash.addEventListener('click', dismiss);
+}
+
 window.addEventListener('load', () => {
-  // requestAnimationFrame defers until after the browser has done its first
-  // layout pass, so zone-a will have a real offsetHeight by then.
   requestAnimationFrame(() => {
     resizeCanvas();
     drawFrame(0);
-    showSongScreen();
+    initSplash();
   });
 });
 </script>
