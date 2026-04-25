@@ -1939,6 +1939,7 @@ function wireOverlayButton(id, action) {
   function go(ev) {
     if (fired) return;
     fired = true;
+    setTimeout(() => { fired = false; }, 600);
     ev.preventDefault();
     try { ensureAudio(); } catch (e) {}
     action();
