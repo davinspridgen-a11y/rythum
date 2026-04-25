@@ -12,7 +12,7 @@
     html, body {
       width: 100%; height: 100%;
       overflow: hidden;
-      background: #07071A;
+      background: #000000;
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
                    'Helvetica Neue', Arial, sans-serif;
       -webkit-user-select: none; user-select: none;
@@ -31,7 +31,7 @@
     #zone-a {
       flex: 1 1 0;
       position: relative;
-      background: #07071A;
+      background: #000000;
       overflow: hidden;
       min-height: 0;
     }
@@ -41,20 +41,21 @@
     #info-corner {
       position: absolute;
       right: 16px; top: 12px;
-      background: rgba(255,255,255,0.07);
-      border: 0.5px solid rgba(255,255,255,0.14);
-      border-radius: 16px;
+      background: rgba(28,28,30,0.60);
+      border: 0.5px solid rgba(255,255,255,0.17);
+      border-radius: 20px;
       padding: 10px 18px;
       text-align: center;
       min-width: 94px;
       pointer-events: none;
       z-index: 10;
-      backdrop-filter: blur(20px) saturate(1.4);
-      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      backdrop-filter: blur(7px) saturate(1.8);
+      -webkit-backdrop-filter: blur(7px) saturate(1.8);
+      box-shadow: 0 2px 40px rgba(0,0,0,0.5);
     }
-    .ic-sig   { font-size: 11px; font-weight: 600; color: rgba(191,90,242,0.9); letter-spacing: 0.4px; }
-    .ic-score { font-size: 26px; font-weight: 800; color: #FFF; letter-spacing: -1px; line-height: 1.1; margin-top: 1px; }
-    .ic-label { font-size: 9px;  font-weight: 500; color: rgba(255,255,255,0.3); letter-spacing: 1.2px; text-transform: uppercase; margin-top: 2px; }
+    .ic-sig   { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.55); letter-spacing: 0.06px; }
+    .ic-score { font-size: 22px; font-weight: 700; color: #FFF; letter-spacing: -0.26px; line-height: 1.1; margin-top: 1px; }
+    .ic-label { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.55); letter-spacing: 0.06px; text-transform: uppercase; margin-top: 2px; }
 
     /* ── ZONE B: stats bar ── */
     #zone-b {
@@ -63,44 +64,44 @@
       align-items: center;
       justify-content: space-around;
       padding: 0 12px;
-      background: rgba(14,14,28,0.96);
-      border-top: 0.5px solid rgba(255,255,255,0.08);
-      border-bottom: 0.5px solid rgba(255,255,255,0.05);
+      background: #1C1C1E;
+      border-top: 0.5px solid #38383A;
+      border-bottom: 0.5px solid #38383A;
     }
 
     .hud-item  { display: flex; flex-direction: column; align-items: center; gap: 1px; }
-    .hud-label { font-size: 8px; font-weight: 500; color: rgba(255,255,255,0.3); letter-spacing: 0.8px; text-transform: uppercase; }
-    .hud-value { font-size: 17px; font-weight: 700; color: #FFF; line-height: 1; letter-spacing: -0.3px; }
-    .hud-value.timesig  { color: #BF5AF2; font-size: 15px; }
-    .hud-value.bpm      { color: #BF5AF2; font-size: 15px; }
-    .hud-value.streak   { color: #FFD60A; }
-    .hud-value.accuracy { color: #30D158; font-size: 15px; }
+    .hud-label { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.55); letter-spacing: 0.06px; text-transform: uppercase; }
+    .hud-value { font-size: 17px; font-weight: 600; color: #FFF; line-height: 1; letter-spacing: -0.43px; }
+    .hud-value.timesig  { color: #5CB8FF; font-size: 15px; }
+    .hud-value.bpm      { color: #5CB8FF; font-size: 15px; }
+    .hud-value.streak   { color: #FEDF43; }
+    .hud-value.accuracy { color: #4AE968; font-size: 15px; }
 
-    .hud-sep { width: 0.5px; height: 22px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+    .hud-sep { width: 0.5px; height: 22px; background: #38383A; flex-shrink: 0; }
 
     .beat-dots { display: flex; gap: 5px; align-items: center; }
     .beat-dot  { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: background 0.08s, transform 0.08s; }
-    .beat-dot.active       { background: #BF5AF2; transform: scale(1.4); }
-    .beat-dot.active.beat1 { background: #FFF; }
+    .beat-dot.active       { background: #5CB8FF; transform: scale(1.4); }
+    .beat-dot.active.beat1 { background: #FFFFFF; }
 
     .phase-badge {
-      font-size: 9px; font-weight: 600;
+      font-size: 15px; font-weight: 400;
       padding: 3px 8px; border-radius: 20px; border: 0.5px solid;
-      letter-spacing: 0.2px; text-align: center; max-width: 80px; line-height: 1.3;
+      letter-spacing: -0.23px; text-align: center; max-width: 80px; line-height: 1.3;
     }
 
     .hud-end-btn {
       padding: 5px 12px;
-      background: rgba(255,69,58,0.14);
-      border: 0.5px solid rgba(255,69,58,0.4);
+      background: rgba(255,97,101,0.12);
+      border: 0.5px solid rgba(255,97,101,0.35);
       border-radius: 20px;
-      color: #FF453A;
+      color: #FF6165;
       font-size: 10px; font-weight: 600; letter-spacing: 0.4px;
       cursor: pointer; font-family: inherit;
       transition: background 0.15s;
       white-space: nowrap; touch-action: manipulation;
     }
-    .hud-end-btn:active { background: rgba(255,69,58,0.32); }
+    .hud-end-btn:active { background: rgba(255,97,101,0.32); }
 
     /* ── ZONE C: touch pads at bottom ── */
     #zone-c {
@@ -111,8 +112,8 @@
       gap: 10px;
       padding: 12px 14px;
       padding-bottom: max(12px, env(safe-area-inset-bottom));
-      background: rgba(10,10,22,0.98);
-      border-top: 0.5px solid rgba(255,255,255,0.1);
+      background: #000000;
+      border-top: 0.5px solid #38383A;
     }
 
     /* ── TOUCH PAD buttons ── */
@@ -129,27 +130,27 @@
       flex: 1 1 0;
       min-width: 0;
       height: 110px;
-      border-radius: 22px;
-      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      border: 0.5px solid rgba(255,255,255,0.17);
     }
 
-    .key-glyph { font-size: 26px; font-weight: 700; line-height: 1; }
-    .key-label { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; opacity: 0.7; }
+    .key-glyph { font-size: 26px; font-weight: 600; line-height: 1; letter-spacing: -0.31px; }
+    .key-label { font-size: 11px; font-weight: 400; letter-spacing: 0.06px; text-transform: uppercase; opacity: 0.7; }
 
     /* Key colors */
-    .kb-kick  { background: rgba(10,132,255,0.14);  color: #0A84FF; border-color: rgba(10,132,255,0.28) !important; }
-    .kb-ftom  { background: rgba(191,90,242,0.14);  color: #BF5AF2; border-color: rgba(191,90,242,0.28) !important; }
-    .kb-snare { background: rgba(255,159,10,0.14);  color: #FF9F0A; border-color: rgba(255,159,10,0.28) !important; }
-    .kb-hihat { background: rgba(255,214,10,0.14);  color: #FFD60A; border-color: rgba(255,214,10,0.28) !important; }
-    .kb-crash { background: rgba(255,69,58,0.14);   color: #FF453A; border-color: rgba(255,69,58,0.28) !important; }
+    .kb-kick  { background: rgba(92,184,255,0.12);  color: #5CB8FF; border-color: rgba(92,184,255,0.25) !important; }
+    .kb-ftom  { background: rgba(234,141,255,0.12); color: #EA8DFF; border-color: rgba(234,141,255,0.25) !important; }
+    .kb-snare { background: rgba(255,160,86,0.12);  color: #FFA056; border-color: rgba(255,160,86,0.25) !important; }
+    .kb-hihat { background: rgba(254,223,67,0.12);  color: #FEDF43; border-color: rgba(254,223,67,0.25) !important; }
+    .kb-crash { background: rgba(255,97,101,0.12);  color: #FF6165; border-color: rgba(255,97,101,0.25) !important; }
 
     /* Pressed */
     .key-btn.pressed { transform: scale(0.91); filter: brightness(1.5); }
-    .kb-kick.pressed  { background: rgba(10,132,255,0.45);  box-shadow: 0 0 28px rgba(10,132,255,0.55);  }
-    .kb-ftom.pressed  { background: rgba(191,90,242,0.45);  box-shadow: 0 0 28px rgba(191,90,242,0.55);  }
-    .kb-snare.pressed { background: rgba(255,159,10,0.45);  box-shadow: 0 0 28px rgba(255,159,10,0.55);  }
-    .kb-hihat.pressed { background: rgba(255,214,10,0.45);  box-shadow: 0 0 28px rgba(255,214,10,0.55);  }
-    .kb-crash.pressed { background: rgba(255,69,58,0.45);   box-shadow: 0 0 28px rgba(255,69,58,0.55);   }
+    .kb-kick.pressed  { background: rgba(92,184,255,0.40);  box-shadow: 0 0 24px rgba(92,184,255,0.50); }
+    .kb-ftom.pressed  { background: rgba(234,141,255,0.40); box-shadow: 0 0 24px rgba(234,141,255,0.50); }
+    .kb-snare.pressed { background: rgba(255,160,86,0.40);  box-shadow: 0 0 24px rgba(255,160,86,0.50); }
+    .kb-hihat.pressed { background: rgba(254,223,67,0.40);  box-shadow: 0 0 24px rgba(254,223,67,0.50); }
+    .kb-crash.pressed { background: rgba(255,97,101,0.40);  box-shadow: 0 0 24px rgba(255,97,101,0.50); }
 
     /* Locked */
     .key-btn.locked { opacity: 0.2; filter: grayscale(0.9); cursor: default; pointer-events: none; }
@@ -165,46 +166,47 @@
     /* ── OVERLAYS ── */
     .overlay {
       position: fixed; inset: 0;
-      background: rgba(4,4,18,0.94);
-      backdrop-filter: blur(24px) saturate(1.2);
-      -webkit-backdrop-filter: blur(24px) saturate(1.2);
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(24px) saturate(1.6);
+      -webkit-backdrop-filter: blur(24px) saturate(1.6);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       z-index: 200; gap: 16px;
     }
 
-    .overlay-title { font-size: 36px; font-weight: 800; color: #FFF; letter-spacing: 6px; }
-    .overlay-sub   { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.4); letter-spacing: 2px; text-transform: uppercase; }
+    .overlay-title { font-size: 34px; font-weight: 400; color: #FFF; letter-spacing: 0.4px; }
+    .overlay-sub   { font-size: 13px; font-weight: 400; color: rgba(235,235,245,0.70); letter-spacing: -0.08px; text-transform: uppercase; }
 
     .phase-preview { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 
     .phase-pip {
       display: flex; align-items: center; gap: 6px;
-      font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7);
+      font-size: 13px; font-weight: 400; color: rgba(235,235,245,0.70);
       background: rgba(255,255,255,0.07); padding: 6px 13px; border-radius: 20px;
       border: 0.5px solid rgba(255,255,255,0.1);
+      letter-spacing: -0.08px;
     }
     .phase-pip .pip-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .phase-pip .pip-time { font-size: 9px; color: rgba(255,255,255,0.3); margin-left: 2px; }
+    .phase-pip .pip-time { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.55); margin-left: 2px; letter-spacing: 0.06px; }
 
     .overlay-hint {
-      font-size: 13px; color: rgba(255,255,255,0.28); text-align: center;
-      max-width: 460px; line-height: 1.8;
+      font-size: 13px; font-weight: 400; color: rgba(235,235,245,0.55); text-align: center;
+      max-width: 460px; line-height: 1.8; letter-spacing: -0.08px;
     }
 
     .cta-btn {
       margin-top: 6px; padding: 15px 44px;
-      background: #0A84FF; color: #FFF;
-      border: none; border-radius: 16px;
-      font-size: 17px; font-weight: 700; letter-spacing: 0.3px;
+      background: #5CB8FF; color: #000000;
+      border: none; border-radius: 14px;
+      font-size: 17px; font-weight: 400; letter-spacing: -0.43px;
       cursor: pointer; font-family: inherit; touch-action: manipulation;
     }
     .cta-btn:active { filter: brightness(0.9); }
 
     .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 310px; }
-    .res-card { background: rgba(255,255,255,0.07); border-radius: 18px; padding: 16px; text-align: center; border: 0.5px solid rgba(255,255,255,0.1); }
+    .res-card { background: rgba(28,28,30,0.80); border-radius: 20px; padding: 16px; text-align: center; border: 0.5px solid rgba(255,255,255,0.10); }
     .res-val  { font-size: 30px; font-weight: 700; color: #FFF; letter-spacing: -1px; }
-    .res-lbl  { font-size: 9px; font-weight: 500; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px; }
+    .res-lbl  { font-size: 11px; font-weight: 400; color: rgba(235,235,245,0.55); text-transform: uppercase; letter-spacing: 0.06px; margin-top: 3px; }
     .res-btns { display: flex; gap: 10px; margin-top: 8px; }
 
     /* ── COUNTDOWN ── */
@@ -254,23 +256,23 @@
 
   <div class="phase-preview">
     <div class="phase-pip">
-      <div class="pip-dot" style="background:#0A84FF"></div>
+      <div class="pip-dot" style="background:#5CB8FF"></div>
       Space — Kick <span class="pip-time">0s</span>
     </div>
     <div class="phase-pip">
-      <div class="pip-dot" style="background:#FFD60A"></div>
+      <div class="pip-dot" style="background:#FEDF43"></div>
       T — Hi-Hat <span class="pip-time">~5s</span>
     </div>
     <div class="phase-pip">
-      <div class="pip-dot" style="background:#FF9F0A"></div>
+      <div class="pip-dot" style="background:#FFA056"></div>
       S — Snare <span class="pip-time">~10s</span>
     </div>
     <div class="phase-pip">
-      <div class="pip-dot" style="background:#FF453A"></div>
+      <div class="pip-dot" style="background:#FF6165"></div>
       I — Crash <span class="pip-time">~15s</span>
     </div>
     <div class="phase-pip">
-      <div class="pip-dot" style="background:#BF5AF2"></div>
+      <div class="pip-dot" style="background:#EA8DFF"></div>
       O — Floor Tom <span class="pip-time">~20s</span>
     </div>
     <div style="width:100%;text-align:center;font-size:10px;color:#48484A;margin-top:4px;">
@@ -301,6 +303,96 @@
     <button type="button" class="cta-btn" id="retry-btn">↺  Retry</button>
   </div>
 </div>
+
+<!--
+╔══════════════════════════════════════════════════════════════════╗
+║  RHYTHMCODE — COMPONENT GLOSSARY                                 ║
+╠══════════════════════════════════════════════════════════════════╣
+║                                                                  ║
+║  APP LAYOUT  (stacked top → bottom, full screen)                 ║
+║  ─────────────────────────────────────────────                   ║
+║  #app          Outer flex column, 100% viewport                  ║
+║                                                                  ║
+║  ZONE A  (#zone-a)  ── NOTE FIELD                                ║
+║    The main game canvas. Takes up all remaining height after     ║
+║    zones B and C. Contains:                                      ║
+║      • Track Canvas (#track-canvas)                              ║
+║          The <canvas> element where all game graphics are drawn  ║
+║          via the Canvas 2D API each animation frame.             ║
+║          Sub-elements drawn in JS (not real DOM nodes):          ║
+║          - Lane Columns  5 vertical columns, one per instrument  ║
+║          - Note Pills    Horizontal capsules that fall downward  ║
+║          - Hit Line      Horizontal line at 78% canvas height    ║
+║                          — where pills must be tapped to score   ║
+║          - Target Ring   Circle on the Hit Line per lane;        ║
+║                          glows as a note approaches              ║
+║          - Hit Ring      Expanding circle burst on a scored hit  ║
+║          - Beat Grid     Horizontal lines scrolling upward,      ║
+║                          marking each beat and bar               ║
+║          - Phase Banner  Full-width color flash + label when a   ║
+║                          new instrument unlocks                  ║
+║          - Feedback      "PERFECT / GOOD / MISS" text that       ║
+║            Floater        floats upward after each judgment      ║
+║          - Cycle Bar     Thin progress bar at canvas bottom      ║
+║                          showing position in the 9-bar loop      ║
+║      • Info Corner (#info-corner)                                ║
+║          Frosted-glass overlay in the top-right of Zone A.       ║
+║          Shows live success rate (%) and time signature/BPM.     ║
+║                                                                  ║
+║  ZONE B  (#zone-b)  ── HUD / STATS BAR                          ║
+║    Thin 44px bar between the canvas and the pads. Contains:      ║
+║      • HUD Items (.hud-item)  Label + value pairs:               ║
+║          - Time Sig     Current time signature (4/4)             ║
+║          - BPM          Beats per minute (65)                    ║
+║          - Beat Dots    4 dots (.beat-dot) that pulse to show    ║
+║                         which beat in the bar is playing         ║
+║          - Streak       Consecutive hit count                    ║
+║          - Accuracy     Hits / judged notes as a percentage      ║
+║          - Score        Running point total                      ║
+║      • Phase Badge (#phase-badge)                                ║
+║          Pill label naming the most recently unlocked instrument ║
+║      • End Session Button (#end-btn)                             ║
+║          Appears once the game starts; stops play and shows      ║
+║          the Results screen                                      ║
+║                                                                  ║
+║  ZONE C  (#zone-c)  ── INPUT PAD ROW                            ║
+║    Bottom row of 5 touch pads, ordered low → high pitch.         ║
+║    Each pad (.key-btn.touch-pad) contains:                       ║
+║      • Key Glyph (.key-glyph)   Keyboard shortcut label          ║
+║      • Key Label (.key-label)   Instrument name                  ║
+║    Pad color classes: kb-kick · kb-ftom · kb-snare               ║
+║                       kb-hihat · kb-crash                        ║
+║    States: (default) · .locked · .pressed · .unlocking           ║
+║                                                                  ║
+║  OVERLAYS  (position: fixed, above everything)                   ║
+║  ─────────────────────────────────────────────                   ║
+║    • Start Screen (#start-screen)                                ║
+║        Shown before game begins. Lists instruments + timing.     ║
+║        Contains Phase Pips (color dot + name + unlock time)      ║
+║        and the Start Building CTA button (#start-btn).           ║
+║    • Results Screen (#results-screen)                            ║
+║        Shown after End Session. Displays Accuracy, Best Streak,  ║
+║        Hits, and Score in a 2×2 Result Grid (.res-grid).         ║
+║        Contains Retry button (#retry-btn).                       ║
+║    • Countdown Screen (#countdown-screen)                        ║
+║        3-2-1-GO! animation shown at game start; game clock       ║
+║        runs underneath it so notes are already moving on GO!     ║
+║                                                                  ║
+║  GAME / AUDIO CONCEPTS                                           ║
+║  ─────────────────────────────────────────────                   ║
+║    • Phase       One of 5 instrument introduction stages         ║
+║    • Lane        A numbered column (0=Kick … 4=Crash)            ║
+║    • Beat        Rhythmic unit; 4 beats = 1 bar at 65 BPM        ║
+║    • Pattern     9-bar / 36-beat groove cycle that loops forever ║
+║    • Run-up      3.5s lead-in before beat 0; notes visible but   ║
+║                  no scoring yet                                  ║
+║    • Hit Window  ±80ms = Perfect (+100pts)                       ║
+║                  ±165ms = Good    (+50pts)                       ║
+║                  >215ms = Miss    (streak reset)                  ║
+║    • SCROLL_V    Vertical scroll speed (px/ms) — controls how    ║
+║                  fast notes fall toward the Hit Line             ║
+╚══════════════════════════════════════════════════════════════════╝
+-->
 
 <!-- ══ APP ══ -->
 <div id="app">
@@ -355,7 +447,7 @@
     <div class="hud-sep"></div>
     <div class="hud-item">
       <div class="phase-badge" id="phase-badge"
-           style="color:#0A84FF; border-color:rgba(10,132,255,0.4); background:rgba(10,132,255,0.1);">
+           style="color:#5CB8FF; border-color:rgba(92,184,255,0.4); background:rgba(92,184,255,0.1);">
         Kick
       </div>
     </div>
@@ -411,13 +503,13 @@ const WIN_GOOD      = 165;
 const MISS_AFTER    = 215;
 
 // Lane order: low → high pitch  (Kick, Floor Tom, Snare, Hi-Hat, Crash)
-const NOTE_COLOR = ['#0A84FF','#BF5AF2','#FF9F0A','#FFD60A','#FF453A'];
+const NOTE_COLOR = ['#5CB8FF','#EA8DFF','#FFA056','#FEDF43','#FF6165'];
 const LANE_TINT  = [
-  'rgba(10,132,255,0.055)',
-  'rgba(191,90,242,0.055)',
-  'rgba(255,159,10,0.055)',
-  'rgba(255,214,10,0.055)',
-  'rgba(255,69,58,0.055)',
+  'rgba(92,184,255,0.055)',
+  'rgba(234,141,255,0.055)',
+  'rgba(255,160,86,0.055)',
+  'rgba(254,223,67,0.055)',
+  'rgba(255,97,101,0.055)',
 ];
 const LANE_NAMES = ['Kick','Floor Tom','Snare','Hi-Hat','Crash'];
 const KEY_IDS    = ['key-space','key-o','key-s','key-t','key-i'];
@@ -437,11 +529,11 @@ const KEY_TO_LANE = { ' ':0, 'o':1, 's':2, 't':3, 'i':4 };
 // Introduction order: Kick → Hi-Hat → Snare → Crash → Floor Tom
 // Lane numbers reflect pitch order: 0=Kick 1=Floor 2=Snare 3=HiHat 4=Crash
 const PHASES = [
-  { startBeat:  0, lane: 0, name: 'Kick Drum',  key: 'SPACE', color: '#0A84FF', unlockBeat: -1 },
-  { startBeat:  5, lane: 3, name: 'Hi-Hat',     key: 'T',     color: '#FFD60A', unlockBeat:  3 },
-  { startBeat: 11, lane: 2, name: 'Snare',      key: 'S',     color: '#FF9F0A', unlockBeat:  9 },
-  { startBeat: 16, lane: 4, name: 'Crash',      key: 'I',     color: '#FF453A', unlockBeat: 14 },
-  { startBeat: 22, lane: 1, name: 'Floor Tom',  key: 'O',     color: '#BF5AF2', unlockBeat: 20 },
+  { startBeat:  0, lane: 0, name: 'Kick Drum',  key: 'SPACE', color: '#5CB8FF', unlockBeat: -1 },
+  { startBeat:  5, lane: 3, name: 'Hi-Hat',     key: 'T',     color: '#FEDF43', unlockBeat:  3 },
+  { startBeat: 11, lane: 2, name: 'Snare',      key: 'S',     color: '#FFA056', unlockBeat:  9 },
+  { startBeat: 16, lane: 4, name: 'Crash',      key: 'I',     color: '#FF6165', unlockBeat: 14 },
+  { startBeat: 22, lane: 1, name: 'Floor Tom',  key: 'O',     color: '#EA8DFF', unlockBeat: 20 },
 ];
 
 // Which lanes are currently playable (notes exist for them)
@@ -654,7 +746,7 @@ function drawFrame(currentTime) {
   const now  = performance.now();
 
   // ── Background
-  ctx.fillStyle = '#07071A';
+  ctx.fillStyle = '#000000';
   ctx.fillRect(0, 0, W, H);
 
   // ── Lane column backgrounds
@@ -732,8 +824,8 @@ function drawFrame(currentTime) {
 
   // ── Top fade (notes spawning in from off-screen)
   const topGrd = ctx.createLinearGradient(0, 0, 0, 44);
-  topGrd.addColorStop(0, 'rgba(7,7,26,0.92)');
-  topGrd.addColorStop(1, 'rgba(7,7,26,0)');
+  topGrd.addColorStop(0, 'rgba(0,0,0,0.92)');
+  topGrd.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = topGrd;
   ctx.fillRect(0, 0, W, 44);
 
@@ -1148,9 +1240,9 @@ function startGame() {
   // Reset phase badge
   const badge = document.getElementById('phase-badge');
   badge.textContent   = 'Kick';
-  badge.style.color   = '#0A84FF';
-  badge.style.borderColor = 'rgba(10,132,255,0.4)';
-  badge.style.background  = 'rgba(10,132,255,0.1)';
+  badge.style.color   = '#5CB8FF';
+  badge.style.borderColor = 'rgba(92,184,255,0.4)';
+  badge.style.background  = 'rgba(92,184,255,0.1)';
 
   document.getElementById('hud-accuracy').textContent = '—';
   document.getElementById('ic-score').textContent     = '—/100';
