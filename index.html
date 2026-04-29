@@ -30,14 +30,7 @@ html, body {
   touch-action:manipulation;
 }
 
-/* CRT scanlines — screen area only, not button deck */
-body::after {
-  content:'';
-  position:fixed; top:0; left:0; right:0;
-  bottom:var(--zone-c-h);
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.05) 3px,rgba(0,0,0,0.05) 4px);
-  pointer-events:none; z-index:9998;
-}
+/* CRT scanlines — applied only inside zone-a via canvas layer; body::after removed */
 
 /* ── APP SHELL = DEVICE BODY ── */
 #app {
@@ -63,12 +56,12 @@ body::after {
    SPLASH SCREEN
 ════════════════════════════════════ */
 #splash-screen {
-  position:fixed; top:0; left:0; right:0;
-  bottom:var(--zone-c-h); /* stop above button deck */
+  position:fixed; /* top/left/width/height set by constrainOverlaysToScreen() */
   background:#9b9b9b;
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   z-index:500; gap:14px;
+  overflow:hidden;
 }
 #splash-screen.out { animation:splashFadeOut 0.45s ease forwards; }
 
@@ -324,15 +317,15 @@ body::after {
 
 /* ════════════════════════════════════
    SHARED OVERLAY BASE
-   Constrained to screen area — button deck stays visible
+   position/size stamped to zone-a bounds by constrainOverlaysToScreen()
 ════════════════════════════════════ */
 .overlay {
-  position:fixed; top:0; left:0; right:0;
-  bottom:var(--zone-c-h); /* hardware buttons always visible */
+  position:fixed; /* top/left/width/height set by JS */
   background:rgba(13,13,17,0.97);
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   z-index:200; gap:14px;
+  overflow:hidden;
 }
 .overlay-title {
   font-family:'Sixtyfour Convergence','Press Start 2P',monospace;
@@ -360,7 +353,6 @@ body::after {
   background:#9b9b9b !important;
   overflow-y:auto; -webkit-overflow-scrolling:touch;
   justify-content:flex-start; padding:28px 0 24px;
-  bottom:var(--zone-c-h);
 }
 #song-screen .overlay-title { color:#2a2a2a; margin-bottom:8px; }
 #song-list {
@@ -409,7 +401,6 @@ body::after {
   overflow-y:auto; -webkit-overflow-scrolling:touch;
   justify-content:center; padding:24px 0 20px;
   gap:14px;
-  bottom:var(--zone-c-h);
 }
 #tutorial-screen .overlay-title { color:#2a2a2a; }
 .tut-card {
@@ -465,11 +456,11 @@ body::after {
    COUNTDOWN OVERLAY  (big 3-2-1)
 ════════════════════════════════════ */
 #countdown-screen {
-  position:fixed; top:0; left:0; right:0;
-  bottom:var(--zone-c-h); /* stop above button deck */
+  position:fixed; /* top/left/width/height set by JS */
   display:none; pointer-events:none; z-index:300;
   align-items:center; justify-content:center;
   background:rgba(13,13,17,0.72);
+  overflow:hidden;
 }
 #countdown-screen.visible { display:flex; }
 .cd-number {
@@ -2095,7 +2086,7 @@ document.getElementById('vol-btn').addEventListener('click', function() {
 });
 
 // ═══════════════════════════════════════════════════════════
-//  DEVICE LAYOUT — keep --zone-c-h in sync with actual height
+//  DEVICE LAYOUT
 // ═══════════════════════════════════════════════════════════
 function updateZoneCHeight() {
   const zc = document.getElementById('zone-c');
@@ -2104,17 +2095,45 @@ function updateZoneCHeight() {
   }
 }
 
+// Stamp every overlay's position exactly onto zone-a's bounding rect
+// so all content (splash, overlays, countdown) is contained within the screen frame.
+const OVERLAY_IDS = [
+  'splash-screen','countdown-screen','tutorial-screen','song-screen',
+  'start-screen','results-screen','practice-end-screen'
+];
+function constrainOverlaysToScreen() {
+  const za = document.getElementById('zone-a');
+  if (!za) return;
+  const r = za.getBoundingClientRect();
+  // inner radius slightly less than zone-a's 12px border-radius to sit flush
+  const br = '10px';
+  OVERLAY_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.top          = r.top    + 'px';
+    el.style.left         = r.left   + 'px';
+    el.style.width        = r.width  + 'px';
+    el.style.height       = r.height + 'px';
+    el.style.right        = 'auto';
+    el.style.bottom       = 'auto';
+    el.style.borderRadius = br;
+    el.style.overflow     = 'hidden';
+  });
+}
+
 // ═══════════════════════════════════════════════════════════
 //  RESIZE + INIT
 // ═══════════════════════════════════════════════════════════
 window.addEventListener('resize', () => {
   updateZoneCHeight();
+  constrainOverlaysToScreen();
   resizeCanvas();
   if (gameState === 'idle') drawFrame(0);
 });
 window.addEventListener('orientationchange', () => {
   setTimeout(() => {
     updateZoneCHeight();
+    constrainOverlaysToScreen();
     resizeCanvas();
     if (gameState !== 'playing') drawFrame(0);
   }, 250);
@@ -2142,7 +2161,8 @@ function initSplash() {
 
 window.addEventListener('load', () => {
   requestAnimationFrame(() => {
-    updateZoneCHeight(); // sync CSS var before overlays paint
+    updateZoneCHeight();
+    constrainOverlaysToScreen(); // lock all overlays to zone-a bounds
     resizeCanvas();
     drawFrame(0);
     initSplash();
