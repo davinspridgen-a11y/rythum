@@ -697,6 +697,17 @@ body::after {
   </div>
 </div>
 
+<!-- ══ PRACTICE END SCREEN ══ -->
+<div class="overlay" id="practice-end-screen" style="display:none;">
+  <div class="res-modal" style="align-items:center; text-align:center; gap:20px;">
+    <div class="res-modal-header" style="font-size:20px;">Session ended</div>
+    <div class="res-btns">
+      <button type="button" class="cta-btn" id="practice-pick-song-btn">Pick song to play with?</button>
+      <button type="button" class="cta-btn-secondary" id="practice-resume-btn">Resume with no track</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ APP ══ -->
 <div id="app">
 
@@ -1150,23 +1161,39 @@ function applyTimeSig(num, den) {
 }
 
 function showTutorialScreen() {
-  document.getElementById('tutorial-screen').style.display = 'flex';
-  document.getElementById('song-screen').style.display     = 'none';
-  document.getElementById('start-screen').style.display    = 'none';
-  document.getElementById('results-screen').style.display  = 'none';
+  document.getElementById('tutorial-screen').style.display     = 'flex';
+  document.getElementById('song-screen').style.display         = 'none';
+  document.getElementById('start-screen').style.display        = 'none';
+  document.getElementById('results-screen').style.display      = 'none';
+  document.getElementById('practice-end-screen').style.display = 'none';
 }
 
 function showSongScreen() {
-  document.getElementById('song-screen').style.display     = 'flex';
-  document.getElementById('tutorial-screen').style.display = 'none';
-  document.getElementById('start-screen').style.display    = 'none';
-  document.getElementById('results-screen').style.display  = 'none';
+  document.getElementById('song-screen').style.display         = 'flex';
+  document.getElementById('tutorial-screen').style.display     = 'none';
+  document.getElementById('start-screen').style.display        = 'none';
+  document.getElementById('results-screen').style.display      = 'none';
+  document.getElementById('practice-end-screen').style.display = 'none';
   if (!selectedSong) selectedSong = SONGS[0];
   buildSongCards();
 }
 
+let practiceMode = false;
+
 async function advanceFromSongScreen() {
+  practiceMode = false;
   await loadSelectedMidi();
+  document.getElementById('song-screen').style.display  = 'none';
+  document.getElementById('start-screen').style.display = 'flex';
+}
+
+function skipToFreePlay() {
+  practiceMode = true;
+  midiData     = null;
+  selectedSong = null;
+  BPM          = 90; BEAT_MS = 60000 / BPM;
+  BEATS_PER_BAR = 4;
+  applyTimeSig(4, 4);
   document.getElementById('song-screen').style.display  = 'none';
   document.getElementById('start-screen').style.display = 'flex';
 }
@@ -1274,6 +1301,7 @@ function addSingleBeat(absoluteBeat) {
 }
 
 function scheduleAhead(currentBeatFloat) {
+  if (practiceMode) return;
   const target = Math.floor(currentBeatFloat) + SCHED_AHEAD;
   while (nextBeatToSchedule <= target) { addSingleBeat(nextBeatToSchedule); nextBeatToSchedule++; }
 }
@@ -1852,6 +1880,11 @@ function finishGame() {
   document.getElementById('end-btn').style.display = 'none';
   cdNum = 0;
 
+  if (practiceMode) {
+    document.getElementById('practice-end-screen').style.display = 'flex';
+    return;
+  }
+
   const judged = totalHits + totalMisses;
   const acc    = judged > 0 ? Math.round((totalHits / judged) * 100) : 0;
   const grade  = getGrade(acc);
@@ -1930,8 +1963,19 @@ wireOverlayButton('retry-btn',         restartGame);
 wireOverlayButton('change-track-btn',  goToSongSelect);
 wireOverlayButton('song-next-btn',     advanceFromSongScreen);
 wireOverlayButton('tutorial-next-btn', advanceFromTutorial);
-document.getElementById('song-skip-btn').addEventListener('click', () => { playSelect(); advanceFromSongScreen(); });
-document.getElementById('song-skip-btn').addEventListener('touchend', e => { e.preventDefault(); playSelect(); advanceFromSongScreen(); }, { passive:false });
+
+// Practice-end screen buttons
+wireOverlayButton('practice-pick-song-btn', () => {
+  document.getElementById('practice-end-screen').style.display = 'none';
+  practiceMode = false;
+  showSongScreen();
+});
+wireOverlayButton('practice-resume-btn', () => {
+  document.getElementById('practice-end-screen').style.display = 'none';
+  restartGame();
+});
+document.getElementById('song-skip-btn').addEventListener('click', () => { playSelect(); skipToFreePlay(); });
+document.getElementById('song-skip-btn').addEventListener('touchend', e => { e.preventDefault(); playSelect(); skipToFreePlay(); }, { passive:false });
 
 // UI sound effects
 const sfxClick  = new Audio('Click.wav');
