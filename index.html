@@ -18,34 +18,54 @@
 /* ── RESET ── */
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
+/* Device chassis height var — updated by JS on resize */
+:root { --zone-c-h: 152px; }
+
 html, body {
   width:100%; height:100%;
   overflow:hidden;
-  background:#0d0d11;
+  background:#3e4244; /* device chassis visible at corners */
   font-family:'VT323','Courier New',monospace;
   -webkit-user-select:none; user-select:none;
   touch-action:manipulation;
 }
 
-/* CRT scanlines */
+/* CRT scanlines — screen area only, not button deck */
 body::after {
   content:'';
-  position:fixed; inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px);
+  position:fixed; top:0; left:0; right:0;
+  bottom:var(--zone-c-h);
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.05) 3px,rgba(0,0,0,0.05) 4px);
   pointer-events:none; z-index:9998;
 }
 
-/* ── APP SHELL ── */
+/* ── APP SHELL = DEVICE BODY ── */
 #app {
   display:flex; flex-direction:column;
   width:100vw; height:100vh; height:100dvh;
+  position:relative; /* anchor ::before chassis highlight */
+  /* 16-bit handheld chassis */
+  background: linear-gradient(170deg, #707372 0%, #636766 35%, #54585a 70%, #4a4e50 100%);
+  padding:10px 10px 0 10px;
+  gap:0;
+  /* pixel-crisp edge */
+  image-rendering:pixelated;
+}
+
+/* Chassis inner highlight — top edge pixel line */
+#app::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, #888a88 0%, #b2b4b2 30%, #a0a2a0 70%, #707372 100%);
+  pointer-events:none;
 }
 
 /* ════════════════════════════════════
    SPLASH SCREEN
 ════════════════════════════════════ */
 #splash-screen {
-  position:fixed; inset:0;
+  position:fixed; top:0; left:0; right:0;
+  bottom:var(--zone-c-h); /* stop above button deck */
   background:#9b9b9b;
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
@@ -88,14 +108,17 @@ body::after {
 #splash-start-btn:active { transform:translate(4px,4px); box-shadow:none; }
 
 /* ════════════════════════════════════
-   HUD BAR  (zone-b)
+   HUD BAR  (zone-b) — screen top
 ════════════════════════════════════ */
 #zone-b {
-  flex:0 0 80px;
+  flex:0 0 72px;
   display:flex; align-items:center;
-  padding:0 16px; gap:10px;
-  background:#1a1a1e;
-  border-bottom:2px solid #54585a;
+  padding:0 14px; gap:10px;
+  background:#141418;
+  border-bottom:2px solid #2a2a2e;
+  border-radius:4px 4px 0 0;
+  /* pixel top-border highlight */
+  border-top:2px solid #1e1e24;
 }
 .hud-item { display:flex; flex-direction:column; align-items:center; gap:2px; }
 .hud-label {
@@ -155,11 +178,19 @@ body::after {
 }
 
 /* ════════════════════════════════════
-   GAME CANVAS  (zone-a)
+   GAME CANVAS  (zone-a) — LCD screen
 ════════════════════════════════════ */
 #zone-a {
   flex:1 1 0; position:relative;
   background:#0d0d11; overflow:hidden; min-height:0;
+  border-radius:0 0 4px 4px;
+  /* Deep inset shadow = LCD screen effect */
+  box-shadow:
+    inset 0 8px 32px rgba(0,0,0,0.92),
+    inset 0 -4px 18px rgba(0,0,0,0.65),
+    inset 8px 0 28px rgba(0,0,0,0.55),
+    inset -8px 0 28px rgba(0,0,0,0.55);
+  outline:2px solid #080810;
 }
 #track-canvas { display:block; width:100%; height:100%; }
 
@@ -205,31 +236,72 @@ body::after {
 #zone-hit { display:none; }
 
 /* ════════════════════════════════════
-   BUTTON PADS  (zone-c)
+   BUTTON DECK  (zone-c) — physical hardware controls
 ════════════════════════════════════ */
 #zone-c {
-  flex:0 0 148px;
-  display:flex; gap:10px;
-  padding:8px 14px;
-  padding-bottom:max(12px, env(safe-area-inset-bottom));
-  background:#0d0d11;
+  flex:0 0 auto;
+  display:flex; gap:8px;
+  padding:14px 10px 28px 10px;
+  padding-bottom:max(28px, calc(env(safe-area-inset-bottom) + 14px));
+  background:transparent; /* device chassis (#app) shows through */
+  position:relative;
+  /* pixel-art speaker grill dots on left */
+}
+/* Speaker grill - left side */
+#zone-c::before {
+  content:'';
+  position:absolute; left:14px; top:50%; transform:translateY(-50%);
+  width:0; height:0; /* hidden — layout reserved */
 }
 .key-btn {
   flex:1 1 0; min-width:0;
+  height:94px;
   display:flex; align-items:center; justify-content:center;
   cursor:pointer; touch-action:manipulation;
-  transition:transform 0.05s ease, opacity 0.15s ease, filter 0.1s ease;
   border:none; position:relative;
-  border-radius:14px;
+  border-radius:10px;
+  /* Physical raised-button look */
+  border-top:2px solid rgba(255,255,255,0.28);
+  border-left:2px solid rgba(255,255,255,0.12);
+  border-right:2px solid rgba(0,0,0,0.25);
+  border-bottom:2px solid rgba(0,0,0,0.1);
+  box-shadow:
+    0 7px 0 rgba(0,0,0,0.50),
+    0 8px 0 rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    inset 0 -1px 0 rgba(0,0,0,0.18);
+  transition:transform 0.06s ease, box-shadow 0.06s ease, filter 0.08s ease;
+  image-rendering:pixelated;
 }
-.key-btn.touch-pad { height:100%; }
+/* Key label below each button */
+.key-btn::after {
+  content:attr(data-key);
+  position:absolute;
+  bottom:-20px;
+  left:50%; transform:translateX(-50%);
+  font-family:'Press Start 2P',monospace;
+  font-size:8px;
+  color:#b2b4b2;
+  letter-spacing:0;
+  white-space:nowrap;
+  pointer-events:none;
+  image-rendering:pixelated;
+}
+.key-btn.touch-pad { height:94px; }
 .kb-kick  { background:#bf5b5b; }
 .kb-ftom  { background:#3c8d88; }
 .kb-snare { background:#c6b955; }
 .kb-hihat { background:#86b460; }
 .kb-crash { background:#a7a4e0; }
-.key-btn.locked { opacity:0.28; }
-.key-btn.pressed { transform:translate(2px,2px); filter:brightness(1.4); }
+.key-btn.locked { opacity:0.22; }
+.key-btn.pressed {
+  transform:translateY(6px);
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.50),
+    inset 0 3px 6px rgba(0,0,0,0.3);
+  border-top:2px solid rgba(255,255,255,0.10);
+  filter:brightness(1.45);
+}
 @keyframes unlockPop {
   0%   { transform:scale(1);    filter:brightness(1); }
   30%  { transform:scale(1.18); filter:brightness(2.0); }
@@ -240,9 +312,11 @@ body::after {
 
 /* ════════════════════════════════════
    SHARED OVERLAY BASE
+   Constrained to screen area — button deck stays visible
 ════════════════════════════════════ */
 .overlay {
-  position:fixed; inset:0;
+  position:fixed; top:0; left:0; right:0;
+  bottom:var(--zone-c-h); /* hardware buttons always visible */
   background:rgba(13,13,17,0.97);
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
@@ -274,6 +348,7 @@ body::after {
   background:#9b9b9b !important;
   overflow-y:auto; -webkit-overflow-scrolling:touch;
   justify-content:flex-start; padding:28px 0 24px;
+  bottom:var(--zone-c-h);
 }
 #song-screen .overlay-title { color:#2a2a2a; margin-bottom:8px; }
 #song-list {
@@ -322,6 +397,7 @@ body::after {
   overflow-y:auto; -webkit-overflow-scrolling:touch;
   justify-content:center; padding:24px 0 20px;
   gap:14px;
+  bottom:var(--zone-c-h);
 }
 #tutorial-screen .overlay-title { color:#2a2a2a; }
 .tut-card {
@@ -377,7 +453,8 @@ body::after {
    COUNTDOWN OVERLAY  (big 3-2-1)
 ════════════════════════════════════ */
 #countdown-screen {
-  position:fixed; inset:0;
+  position:fixed; top:0; left:0; right:0;
+  bottom:var(--zone-c-h); /* stop above button deck */
   display:none; pointer-events:none; z-index:300;
   align-items:center; justify-content:center;
   background:rgba(13,13,17,0.72);
@@ -775,11 +852,11 @@ body::after {
 
   <!-- BUTTON PADS -->
   <div id="zone-c">
-    <button type="button" class="key-btn touch-pad kb-kick"         id="key-space" data-lane="0"></button>
-    <button type="button" class="key-btn touch-pad kb-ftom  locked" id="key-o"     data-lane="1"></button>
-    <button type="button" class="key-btn touch-pad kb-snare locked" id="key-s"     data-lane="2"></button>
-    <button type="button" class="key-btn touch-pad kb-hihat locked" id="key-t"     data-lane="3"></button>
-    <button type="button" class="key-btn touch-pad kb-crash locked" id="key-i"     data-lane="4"></button>
+    <button type="button" class="key-btn touch-pad kb-kick"         id="key-1"   data-lane="0" data-key="1"></button>
+    <button type="button" class="key-btn touch-pad kb-ftom  locked" id="key-2"   data-lane="1" data-key="2"></button>
+    <button type="button" class="key-btn touch-pad kb-snare locked" id="key-spc" data-lane="2" data-key="SPC"></button>
+    <button type="button" class="key-btn touch-pad kb-hihat locked" id="key-9"   data-lane="3" data-key="9"></button>
+    <button type="button" class="key-btn touch-pad kb-crash locked" id="key-0"   data-lane="4" data-key="0"></button>
   </div>
 
 </div><!-- #app -->
@@ -810,15 +887,15 @@ const LANE_TINT  = [
   'rgba(167,164,224,0.055)',
 ];
 const LANE_NAMES = ['Kick','Floor Tom','Snare','Hi-Hat','Crash'];
-const KEY_IDS    = ['key-space','key-o','key-s','key-t','key-i'];
-const KEY_TO_LANE = { ' ':0, 'o':1, 's':2, 't':3, 'i':4 };
+const KEY_IDS    = ['key-1','key-2','key-spc','key-9','key-0'];
+const KEY_TO_LANE = { '1':0, '2':1, ' ':2, '9':3, '0':4 };
 
 const PHASES = [
-  { startBeat:  0, lane:0, name:'Kick Drum', key:'SPACE', color:'#bf5b5b', unlockBeat:-1 },
-  { startBeat:  5, lane:3, name:'Hi-Hat',    key:'T',     color:'#86b460', unlockBeat: 3 },
-  { startBeat: 11, lane:2, name:'Snare',     key:'S',     color:'#c6b955', unlockBeat: 9 },
-  { startBeat: 16, lane:4, name:'Crash',     key:'I',     color:'#a7a4e0', unlockBeat:14 },
-  { startBeat: 22, lane:1, name:'Floor Tom', key:'O',     color:'#3c8d88', unlockBeat:20 },
+  { startBeat:  0, lane:0, name:'Kick Drum', key:'1',   color:'#bf5b5b', unlockBeat:-1 },
+  { startBeat:  5, lane:3, name:'Hi-Hat',    key:'9',   color:'#86b460', unlockBeat: 3 },
+  { startBeat: 11, lane:2, name:'Snare',     key:'SPC', color:'#c6b955', unlockBeat: 9 },
+  { startBeat: 16, lane:4, name:'Crash',     key:'0',   color:'#a7a4e0', unlockBeat:14 },
+  { startBeat: 22, lane:1, name:'Floor Tom', key:'2',   color:'#3c8d88', unlockBeat:20 },
 ];
 
 const SONGS = [
@@ -2006,14 +2083,26 @@ document.getElementById('vol-btn').addEventListener('click', function() {
 });
 
 // ═══════════════════════════════════════════════════════════
+//  DEVICE LAYOUT — keep --zone-c-h in sync with actual height
+// ═══════════════════════════════════════════════════════════
+function updateZoneCHeight() {
+  const zc = document.getElementById('zone-c');
+  if (zc) {
+    document.documentElement.style.setProperty('--zone-c-h', zc.offsetHeight + 'px');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 //  RESIZE + INIT
 // ═══════════════════════════════════════════════════════════
 window.addEventListener('resize', () => {
+  updateZoneCHeight();
   resizeCanvas();
   if (gameState === 'idle') drawFrame(0);
 });
 window.addEventListener('orientationchange', () => {
   setTimeout(() => {
+    updateZoneCHeight();
     resizeCanvas();
     if (gameState !== 'playing') drawFrame(0);
   }, 250);
@@ -2041,6 +2130,7 @@ function initSplash() {
 
 window.addEventListener('load', () => {
   requestAnimationFrame(() => {
+    updateZoneCHeight(); // sync CSS var before overlays paint
     resizeCanvas();
     drawFrame(0);
     initSplash();
