@@ -43,21 +43,20 @@ body::after {
 #app {
   display:flex; flex-direction:column;
   width:100vw; height:100vh; height:100dvh;
-  position:relative; /* anchor ::before chassis highlight */
-  /* 16-bit handheld chassis */
+  position:relative;
+  /* 16-bit handheld chassis — no padding here; front-panel zones span full width */
   background: linear-gradient(170deg, #707372 0%, #636766 35%, #54585a 70%, #4a4e50 100%);
-  padding:10px 10px 0 10px;
+  padding:0;
   gap:0;
-  /* pixel-crisp edge */
   image-rendering:pixelated;
 }
 
-/* Chassis inner highlight — top edge pixel line */
+/* Chassis highlight — subtle 1px gloss on the very top edge */
 #app::before {
   content:'';
-  position:absolute; top:0; left:0; right:0; height:3px;
-  background:linear-gradient(90deg, #888a88 0%, #b2b4b2 30%, #a0a2a0 70%, #707372 100%);
-  pointer-events:none;
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, #808382 0%, #c0c2c0 40%, #a8aaa8 70%, #808382 100%);
+  pointer-events:none; z-index:1;
 }
 
 /* ════════════════════════════════════
@@ -111,24 +110,22 @@ body::after {
    HUD BAR  (zone-b) — screen top
 ════════════════════════════════════ */
 #zone-b {
-  flex:0 0 72px;
+  flex:0 0 68px;
   display:flex; align-items:center;
-  padding:0 14px; gap:10px;
-  background:#141418;
-  border-bottom:2px solid #2a2a2e;
-  border-radius:4px 4px 0 0;
-  /* pixel top-border highlight */
-  border-top:2px solid #1e1e24;
+  padding:0 20px; gap:10px;
+  /* Front panel — same grey face as button deck */
+  background:#707372;
+  border-bottom:2px solid #5a5d5e;
 }
 .hud-item { display:flex; flex-direction:column; align-items:center; gap:2px; }
 .hud-label {
   font-family:'VT323',monospace;
-  font-size:11px; color:#707372; letter-spacing:1px;
+  font-size:11px; color:#2a2a2a; letter-spacing:1px;
   text-transform:uppercase; line-height:1.1;
 }
-.hud-value { font-family:'VT323',monospace; font-size:20px; color:#b2b4b2; line-height:1; }
-.hud-value.timesig { color:#a7a4e0; font-size:19px; }
-.hud-sep { width:1px; height:30px; background:#54585a; flex-shrink:0; }
+.hud-value { font-family:'VT323',monospace; font-size:20px; color:#1a1a1e; line-height:1; }
+.hud-value.timesig { color:#514689; font-size:19px; }
+.hud-sep { width:1px; height:30px; background:#4a4d4e; flex-shrink:0; }
 
 /* Beat dots — purple pill container */
 .beat-pill {
@@ -148,21 +145,21 @@ body::after {
 .hud-end-btn {
   padding:10px 18px;
   background:transparent;
-  border:1.5px solid rgba(178,180,178,0.45);
-  border-radius:8px;
-  color:#b2b4b2;
+  border:2px solid rgba(0,0,0,0.28);
+  border-radius:4px;
+  color:#2a2a2a;
   font-family:'VT323',monospace;
   font-size:17px; letter-spacing:1px;
   cursor:pointer; touch-action:manipulation;
   transition:background 0.1s; white-space:nowrap;
   min-height:44px;
 }
-.hud-end-btn:active { background:rgba(178,180,178,0.14); }
+.hud-end-btn:active { background:rgba(0,0,0,0.12); }
 
 /* Volume button */
 #vol-btn {
   background:none; border:none;
-  font-size:22px; color:#707372;
+  font-size:22px; color:#2a2a2a;
   cursor:pointer; padding:4px;
   touch-action:manipulation; line-height:1;
   min-width:44px; min-height:44px;
@@ -174,7 +171,7 @@ body::after {
   margin-left:auto;
   font-family:'Sixtyfour Convergence','Press Start 2P',monospace;
   font-size:clamp(13px,2.4vw,22px);
-  color:#b2b4b2; letter-spacing:1px; white-space:nowrap;
+  color:#1a1a1e; letter-spacing:1px; white-space:nowrap;
 }
 
 /* ════════════════════════════════════
@@ -182,15 +179,20 @@ body::after {
 ════════════════════════════════════ */
 #zone-a {
   flex:1 1 0; position:relative;
-  background:#0d0d11; overflow:hidden; min-height:0;
-  border-radius:0 0 4px 4px;
-  /* Deep inset shadow = LCD screen effect */
+  background:#0d0d11; min-height:0;
+  /* Margin creates the inset "screen mount" bezel — more margin = more GameBoy */
+  margin:10px 20px 4px 20px;
+  /* 2pt stroke + rounded corners — shadow is masked inside this rect */
+  border:2px solid #1a1a1e;
+  border-radius:12px;
+  /* overflow:hidden CLIPS the inset shadow to the rounded frame — no spillover */
+  overflow:hidden;
+  /* Deep inset shadow contained inside the frame */
   box-shadow:
-    inset 0 8px 32px rgba(0,0,0,0.92),
-    inset 0 -4px 18px rgba(0,0,0,0.65),
-    inset 8px 0 28px rgba(0,0,0,0.55),
-    inset -8px 0 28px rgba(0,0,0,0.55);
-  outline:2px solid #080810;
+    inset 0 10px 36px rgba(0,0,0,0.95),
+    inset 0 -5px 20px rgba(0,0,0,0.70),
+    inset 10px 0 30px rgba(0,0,0,0.60),
+    inset -10px 0 30px rgba(0,0,0,0.60);
 }
 #track-canvas { display:block; width:100%; height:100%; }
 
@@ -241,17 +243,11 @@ body::after {
 #zone-c {
   flex:0 0 auto;
   display:flex; gap:8px;
-  padding:14px 10px 28px 10px;
-  padding-bottom:max(28px, calc(env(safe-area-inset-bottom) + 14px));
-  background:transparent; /* device chassis (#app) shows through */
+  padding:16px 20px 26px 20px;
+  padding-bottom:max(26px, calc(env(safe-area-inset-bottom) + 14px));
+  background:transparent; /* chassis gradient shows as front panel */
   position:relative;
-  /* pixel-art speaker grill dots on left */
-}
-/* Speaker grill - left side */
-#zone-c::before {
-  content:'';
-  position:absolute; left:14px; top:50%; transform:translateY(-50%);
-  width:0; height:0; /* hidden — layout reserved */
+  border-top:2px solid #5a5d5e; /* same separator line as zone-b bottom */
 }
 .key-btn {
   flex:1 1 0; min-width:0;
