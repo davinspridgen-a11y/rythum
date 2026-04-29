@@ -139,17 +139,17 @@ html, body {
 /* End session button */
 .hud-end-btn {
   padding:10px 18px;
-  background:transparent;
-  border:2px solid rgba(0,0,0,0.28);
+  background:#514689;
+  border:2px solid #a7a4e0;
   border-radius:4px;
-  color:#2a2a2a;
+  color:#d0cef0;
   font-family:'VT323',monospace;
-  font-size:17px; letter-spacing:1px;
+  font-size:17px; font-weight:700; letter-spacing:1px;
   cursor:pointer; touch-action:manipulation;
-  transition:background 0.1s; white-space:nowrap;
+  transition:background 0.1s, filter 0.1s; white-space:nowrap;
   min-height:44px;
 }
-.hud-end-btn:active { background:rgba(0,0,0,0.12); }
+.hud-end-btn:active { filter:brightness(1.25); }
 
 /* Volume button */
 #vol-btn {
@@ -177,13 +177,14 @@ html, body {
   background:#0d0d11; min-height:0;
   /* Margin creates the inset "screen mount" bezel — more margin = more GameBoy */
   margin:10px 20px 4px 20px;
-  /* 2pt stroke + rounded corners — shadow is masked inside this rect */
+  /* 2pt stroke + rounded corners — bottom-right doubled for asymmetric handheld feel */
   border:2px solid #1a1a1e;
-  border-radius:12px;
+  border-radius:12px 12px 24px 12px;
   /* overflow:hidden CLIPS the inset shadow to the rounded frame — no spillover */
   overflow:hidden;
-  /* Deep inset shadow — top and sides only, no bottom shadow eating button space */
+  /* Inner border (10px solid inset) mimics illustrator inner stroke, then depth shadows */
   box-shadow:
+    inset 0 0 0 10px rgba(8,8,12,0.82),
     inset 0 10px 36px rgba(0,0,0,0.95),
     inset 10px 0 30px rgba(0,0,0,0.60),
     inset -10px 0 30px rgba(0,0,0,0.60);
@@ -194,7 +195,7 @@ html, body {
 #zone-a::after {
   content:'';
   position:absolute; inset:0;
-  border-radius:10px;
+  border-radius:10px 10px 22px 10px;
   pointer-events:none; z-index:9990;
   background:
     /* Primary glare — upper-left sweep */
@@ -332,12 +333,20 @@ body.game-active .key-btn.locked { opacity:0.22; }
 #countdown-screen::before {
   content:'';
   position:absolute; inset:0;
-  border-radius:10px;
+  border-radius:10px 10px 22px 10px;
   pointer-events:none; z-index:9990;
   box-shadow:
     inset 0 10px 36px rgba(0,0,0,0.95),
     inset 10px 0 30px rgba(0,0,0,0.60),
     inset -10px 0 30px rgba(0,0,0,0.60);
+}
+/* Grey-bg overlays get 25% lighter inset shadow */
+#splash-screen::before {
+  border-radius:10px 10px 22px 10px;
+  box-shadow:
+    inset 0 8px 27px rgba(0,0,0,0.71),
+    inset 8px 0 23px rgba(0,0,0,0.45),
+    inset -8px 0 23px rgba(0,0,0,0.45);
 }
 .overlay-title {
   font-family:'Sixtyfour Convergence','Press Start 2P',monospace;
@@ -452,8 +461,9 @@ body.game-active .key-btn.locked { opacity:0.22; }
 /* ════════════════════════════════════
    READY SCREEN
 ════════════════════════════════════ */
-#start-screen { gap:18px; }
-.bitbox-mini { width:min(46vw,185px); display:block; }
+#start-screen { gap:18px; background:rgba(13,13,17,0.73); }
+#results-screen { background:rgba(13,13,17,0.73); }
+.bitbox-mini { width:min(88vw,370px); display:block; }
 .ready-box {
   font-family:'Sixtyfour Convergence','Press Start 2P',monospace;
   font-size:clamp(24px,7vw,46px);
@@ -2126,8 +2136,8 @@ function constrainOverlaysToScreen() {
   const za = document.getElementById('zone-a');
   if (!za) return;
   const r = za.getBoundingClientRect();
-  // inner radius slightly less than zone-a's 12px border-radius to sit flush
-  const br = '10px';
+  // match zone-a's asymmetric border-radius (bottom-right doubled)
+  const br = '10px 10px 22px 10px';
   OVERLAY_IDS.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
