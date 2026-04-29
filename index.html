@@ -779,7 +779,7 @@ body::after {
 // ═══════════════════════════════════════════════════════════
 let BPM             = 65;
 let BEAT_MS         = 60000 / BPM;
-const BEATS_PER_BAR = 4;
+let BEATS_PER_BAR = 4;
 const PATTERN_BEATS = 36;
 
 const SCROLL_V      = 0.26;
@@ -929,6 +929,7 @@ function parseMidi(buf) {
   const ppq       = ru16();
 
   let tempoUs = 500000;
+  let timeSigNum = 4, timeSigDen = 4;
   const notes = [];
 
   for (let t = 0; t < numTracks; t++) {
@@ -958,8 +959,15 @@ function parseMidi(buf) {
         const k = ch*128+n; if (open[k]) { notes.push({...open[k], duration:tick-open[k].tick}); delete open[k]; }
       } else if (status === 0xFF) {
         const mt = ru8(), ml = rVL();
-        if (mt === 0x51 && ml === 3) tempoUs = (ru8()<<16)|(ru8()<<8)|ru8();
-        else p += ml;
+        if (mt === 0x51 && ml === 3) {
+          tempoUs = (ru8()<<16)|(ru8()<<8)|ru8();
+        } else if (mt === 0x58 && ml === 4) {
+          timeSigNum = ru8();
+          timeSigDen = Math.pow(2, ru8());
+          ru8(); ru8(); // skip cc, bb
+        } else {
+          p += ml;
+        }
       } else if (status === 0xF0 || status === 0xF7) {
         p += rVL();
       } else if (type === 0xA0 || type === 0xB0 || type === 0xE0) { ru8(); ru8(); }
@@ -971,7 +979,7 @@ function parseMidi(buf) {
   notes.sort((a,b) => a.tick - b.tick);
   const totalTicks = notes.length ? Math.max(...notes.map(n => n.tick + n.duration)) : ppq * 16;
   const bpm        = Math.round(60000000 / tempoUs);
-  return { bpm, ppq, totalTicks, notes };
+  return { bpm, ppq, totalTicks, notes, timeSigNum, timeSigDen };
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1115,10 +1123,29 @@ async function loadSelectedMidi() {
     const buf = await resp.arrayBuffer();
     midiData  = parseMidi(buf);
     BPM = midiData.bpm; BEAT_MS = 60000 / BPM;
-    console.log(`[MIDI] Loaded "${selectedSong.name}" — ${BPM} BPM`);
+    BEATS_PER_BAR = midiData.timeSigNum || 4;
+    applyTimeSig(midiData.timeSigNum || 4, midiData.timeSigDen || 4);
+    console.log(`[MIDI] Loaded "${selectedSong.name}" — ${BPM} BPM, ${midiData.timeSigNum}/${midiData.timeSigDen}`);
   } catch (err) {
     console.warn('[MIDI] Could not load', selectedSong.file, '— silent mode at', selectedSong.bpm, 'BPM');
     midiData = null; BPM = selectedSong.bpm; BEAT_MS = 60000 / BPM;
+    BEATS_PER_BAR = 4;
+    applyTimeSig(4, 4);
+  }
+}
+
+function applyTimeSig(num, den) {
+  // Update HUD label
+  document.getElementById('hud-timesig').textContent = num + '/' + den;
+  // Rebuild beat dots to match numerator
+  const container = document.getElementById('beat-dots');
+  if (!container) return;
+  container.innerHTML = '';
+  for (let i = 0; i < num; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'beat-dot' + (i === 0 ? ' beat1' : '');
+    dot.id = 'bd-' + i;
+    container.appendChild(dot);
   }
 }
 
@@ -1642,7 +1669,7 @@ function refreshHUD() {
   }
 }
 function updateBeatDots(beatInBar) {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < BEATS_PER_BAR; i++) {
     const el = document.getElementById('bd-' + i);
     if (!el) continue;
     el.classList.toggle('active', i === beatInBar);
