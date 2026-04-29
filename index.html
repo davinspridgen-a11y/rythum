@@ -177,17 +177,20 @@ html, body {
   background:#0d0d11; min-height:0;
   /* Margin creates the inset "screen mount" bezel — more margin = more GameBoy */
   margin:10px 20px 4px 20px;
-  /* 2pt stroke + rounded corners — bottom-right doubled for asymmetric handheld feel */
+  /* 2pt outer stroke — outer casing edge */
   border:2px solid #1a1a1e;
-  border-radius:12px 12px 24px 12px;
-  /* overflow:hidden CLIPS the inset shadow to the rounded frame — no spillover */
+  /* bottom-right corner elongated 4× for asymmetric handheld feel */
+  border-radius:12px 12px 48px 12px;
+  /* overflow:hidden clips all inset shadows to the rounded frame */
   overflow:hidden;
-  /* Inner border (10px solid inset) mimics illustrator inner stroke, then depth shadows */
+  /* Layer stack (top → bottom):
+     1. Plastic bevel ring — solid visible dark-grey, reads as the physical inner bezel
+     2. Depth shadows — cast beneath the bevel onto the screen surface */
   box-shadow:
-    inset 0 0 0 10px rgba(8,8,12,0.82),
-    inset 0 10px 36px rgba(0,0,0,0.95),
-    inset 10px 0 30px rgba(0,0,0,0.60),
-    inset -10px 0 30px rgba(0,0,0,0.60);
+    inset 0 0 0 10px #232230,
+    inset 0 14px 40px rgba(0,0,0,0.90),
+    inset 12px 0 32px rgba(0,0,0,0.55),
+    inset -12px 0 32px rgba(0,0,0,0.55);
 }
 #track-canvas { display:block; width:100%; height:100%; }
 
@@ -195,7 +198,7 @@ html, body {
 #zone-a::after {
   content:'';
   position:absolute; inset:0;
-  border-radius:10px 10px 22px 10px;
+  border-radius:10px 10px 46px 10px;
   pointer-events:none; z-index:9990;
   background:
     /* Primary glare — upper-left sweep */
@@ -333,7 +336,7 @@ body.game-active .key-btn.locked { opacity:0.22; }
 #countdown-screen::before {
   content:'';
   position:absolute; inset:0;
-  border-radius:10px 10px 22px 10px;
+  border-radius:10px 10px 46px 10px;
   pointer-events:none; z-index:9990;
   box-shadow:
     inset 0 10px 36px rgba(0,0,0,0.95),
@@ -342,7 +345,7 @@ body.game-active .key-btn.locked { opacity:0.22; }
 }
 /* Grey-bg overlays get 25% lighter inset shadow */
 #splash-screen::before {
-  border-radius:10px 10px 22px 10px;
+  border-radius:10px 10px 46px 10px;
   box-shadow:
     inset 0 8px 27px rgba(0,0,0,0.71),
     inset 8px 0 23px rgba(0,0,0,0.45),
@@ -373,9 +376,11 @@ body.game-active .key-btn.locked { opacity:0.22; }
 #song-screen {
   background:#9b9b9b !important;
   overflow-y:auto; -webkit-overflow-scrolling:touch;
-  justify-content:flex-start; padding:28px 0 24px;
+  justify-content:center; align-items:center;
+  padding:24px 0;
 }
-#song-screen .overlay-title { color:#2a2a2a; margin-bottom:8px; }
+#song-screen .overlay-title { color:#2a2a2a; margin-bottom:8px; text-align:center; }
+.song-skip { text-align:center; justify-content:center; }
 #song-list {
   display:flex; flex-direction:column; gap:10px;
   padding:4px 20px;
@@ -2136,8 +2141,8 @@ function constrainOverlaysToScreen() {
   const za = document.getElementById('zone-a');
   if (!za) return;
   const r = za.getBoundingClientRect();
-  // match zone-a's asymmetric border-radius (bottom-right doubled)
-  const br = '10px 10px 22px 10px';
+  // match zone-a's asymmetric border-radius (bottom-right 4× for handheld feel)
+  const br = '10px 10px 46px 10px';
   OVERLAY_IDS.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
