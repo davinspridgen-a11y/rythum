@@ -1104,6 +1104,7 @@ function selectSong(id) {
   const row = document.querySelector(`.song-row[data-id="${id}"]`);
   if (row) row.classList.add('selected');
   selectedSong = SONGS[id];
+  playClick();
 }
 
 async function loadSelectedMidi() {
@@ -1891,6 +1892,7 @@ function wireOverlayButton(id, action) {
     setTimeout(() => { fired = false; }, 600);
     ev.preventDefault();
     try { ensureAudio(); } catch(e) {}
+    playSelect();
     action();
   }
   btn.addEventListener('touchend', go, { passive:false });
@@ -1901,8 +1903,23 @@ wireOverlayButton('retry-btn',         restartGame);
 wireOverlayButton('change-track-btn',  goToSongSelect);
 wireOverlayButton('song-next-btn',     advanceFromSongScreen);
 wireOverlayButton('tutorial-next-btn', advanceFromTutorial);
-document.getElementById('song-skip-btn').addEventListener('click', advanceFromSongScreen);
-document.getElementById('song-skip-btn').addEventListener('touchend', e => { e.preventDefault(); advanceFromSongScreen(); }, { passive:false });
+document.getElementById('song-skip-btn').addEventListener('click', () => { playSelect(); advanceFromSongScreen(); });
+document.getElementById('song-skip-btn').addEventListener('touchend', e => { e.preventDefault(); playSelect(); advanceFromSongScreen(); }, { passive:false });
+
+// UI sound effects
+const sfxClick  = new Audio('Click.wav');
+const sfxSelect = new Audio('Select.wav');
+sfxClick.preload  = 'auto';
+sfxSelect.preload = 'auto';
+
+function playClick() {
+  sfxClick.currentTime = 0;
+  sfxClick.play().catch(() => {});
+}
+function playSelect() {
+  sfxSelect.currentTime = 0;
+  sfxSelect.play().catch(() => {});
+}
 
 // Volume toggle
 let muted = false;
@@ -1938,6 +1955,7 @@ function initSplash() {
     if (dismissed) return;
     dismissed = true;
     try { ensureAudio(); } catch(e) {}
+    playSelect();
     splash.classList.add('out');
     setTimeout(() => { splash.style.display = 'none'; showTutorialScreen(); }, 460);
   }
