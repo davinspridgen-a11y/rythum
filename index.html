@@ -197,9 +197,13 @@ html, body {
   position:absolute; inset:0;
   border:40px solid #232230;
   box-sizing:border-box;
-  /* outer corners clipped by zone-a overflow:hidden;
-     inner corners: top=0 (sharp), bottom-right=88-40=48px matches main frame */
-  border-radius:12px 12px 88px 12px;
+  /* outer corners clipped to zone-a's own shape by overflow:hidden
+     inner corners = border-radius - 40px:
+       top-left:    52-40 = 12px  ← matches outer frame
+       top-right:   52-40 = 12px  ← matches outer frame
+       bottom-right:88-40 = 48px  ← matches outer frame
+       bottom-left: 52-40 = 12px  ← matches outer frame */
+  border-radius:52px 52px 88px 52px;
   pointer-events:none; z-index:9980;
 }
 
@@ -218,13 +222,13 @@ html, body {
     radial-gradient(ellipse 55% 25% at 40% 18%, rgba(255,255,255,0.022) 0%, transparent 100%);
 }
 
-/* Accuracy corner — inset past the 40px bezel */
+/* Accuracy corner — lower left, above instrument label strip, over bezel */
 #info-corner {
-  position:absolute; right:50px; top:50px;
+  position:absolute; left:50px; bottom:70px;
   background:#1a1a1e; border:1px solid #54585a;
   border-radius:6px; padding:6px 14px;
   text-align:center; min-width:90px;
-  pointer-events:none; z-index:10;
+  pointer-events:none; z-index:9985;
   box-shadow:3px 3px 0 #514689;
 }
 .ic-sig   { font-family:'VT323',monospace; font-size:13px; color:#707372; letter-spacing:1px; }
@@ -264,7 +268,7 @@ html, body {
 ════════════════════════════════════ */
 #zone-c {
   flex:0 0 auto;
-  display:flex; gap:0;
+  display:flex; gap:4px;
   /* 60px = zone-a margin(20px) + bezel(40px) — aligns button centres with lane centres */
   padding:16px 60px 26px 60px;
   padding-bottom:max(26px, calc(env(safe-area-inset-bottom) + 14px));
@@ -1460,9 +1464,9 @@ function resizeCanvas() {
   const el  = document.getElementById('zone-a');
   const fullW = el.offsetWidth  > 0 ? el.offsetWidth  : window.innerWidth;
   const fullH = el.offsetHeight > 0 ? el.offsetHeight : Math.floor(window.innerHeight * 0.58);
-  // shrink canvas to sit inside bezel on all sides
+  // shrink canvas to sit fully inside bezel on all four sides
   const w = fullW - BEZEL * 2;
-  const h = fullH - BEZEL;
+  const h = fullH - BEZEL * 2;
   const dpr = Math.min(window.devicePixelRatio || 1, 3);
   logW = w; logH = h;
   canvas.width  = Math.round(w * dpr);
@@ -1527,19 +1531,17 @@ function drawFrame(currentTime) {
     // Wavy lane separator (replaces straight line)
     if (i > 0) drawWavyLine(lx, 0, H, i);
 
-    // Lane name
+    // Lane name — bottom of canvas, aligned just above the bezel line
     const p = PHASES.find(ph => ph.lane === i);
-    ctx.font = '500 12px VT323, monospace';
+    ctx.font = '400 8px "Press Start 2P", monospace';
     ctx.textAlign = 'center';
+    const labelY = H - 12;
     if (isActive) {
       ctx.fillStyle = NOTE_COLOR[i] + 'BB';
-      ctx.fillText(LANE_NAMES[i].toUpperCase(), lx + lW / 2, 20);
+      ctx.fillText(LANE_NAMES[i].toUpperCase(), lx + lW / 2, labelY);
     } else if (p) {
       ctx.fillStyle = NOTE_COLOR[i] + '44';
-      ctx.fillText(LANE_NAMES[i].toUpperCase(), lx + lW / 2, 20);
-      ctx.font = '400 10px VT323, monospace';
-      ctx.fillStyle = NOTE_COLOR[i] + '33';
-      ctx.fillText('[' + p.key + ']', lx + lW / 2, 33);
+      ctx.fillText(LANE_NAMES[i].toUpperCase(), lx + lW / 2, labelY);
     }
   }
 
