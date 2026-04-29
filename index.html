@@ -183,16 +183,23 @@ html, body {
   border-radius:12px 12px 48px 12px;
   /* overflow:hidden clips all inset shadows to the rounded frame */
   overflow:hidden;
-  /* Layer stack (top → bottom):
-     1. Plastic bevel ring — solid visible dark-grey, reads as the physical inner bezel
-     2. Depth shadows — cast beneath the bevel onto the screen surface */
+  /* Depth shadows only — bezel is handled by ::before pseudo-element above canvas */
   box-shadow:
-    inset 0 0 0 40px #232230,
     inset 0 14px 40px rgba(0,0,0,0.90),
     inset 12px 0 32px rgba(0,0,0,0.55),
     inset -12px 0 32px rgba(0,0,0,0.55);
 }
 #track-canvas { display:block; width:100%; height:100%; }
+
+/* Physical bezel ring — sits above canvas so it's always visible */
+#zone-a::before {
+  content:'';
+  position:absolute; inset:0;
+  border:40px solid #232230;
+  box-sizing:border-box;
+  border-radius:10px 10px 46px 10px;
+  pointer-events:none; z-index:9980;
+}
 
 /* Plastic screen cover — smudge/glare, doesn't obscure gameplay */
 #zone-a::after {
