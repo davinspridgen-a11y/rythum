@@ -298,7 +298,7 @@ html, body {
 .kb-snare { background:#c6b955; }
 .kb-hihat { background:#86b460; }
 .kb-crash { background:#a7a4e0; }
-.key-btn.locked { opacity:0.22; }
+body.game-active .key-btn.locked { opacity:0.22; }
 .key-btn.pressed {
   transform:translateY(6px);
   box-shadow:
@@ -326,6 +326,18 @@ html, body {
   align-items:center; justify-content:center;
   z-index:200; gap:14px;
   overflow:hidden;
+}
+.overlay::before,
+#splash-screen::before,
+#countdown-screen::before {
+  content:'';
+  position:absolute; inset:0;
+  border-radius:10px;
+  pointer-events:none; z-index:9990;
+  box-shadow:
+    inset 0 10px 36px rgba(0,0,0,0.95),
+    inset 10px 0 30px rgba(0,0,0,0.60),
+    inset -10px 0 30px rgba(0,0,0,0.60);
 }
 .overlay-title {
   font-family:'Sixtyfour Convergence','Press Start 2P',monospace;
@@ -1241,6 +1253,7 @@ function applyTimeSig(num, den) {
 }
 
 function showTutorialScreen() {
+  gameState = 'menu';
   document.getElementById('tutorial-screen').style.display     = 'flex';
   document.getElementById('song-screen').style.display         = 'none';
   document.getElementById('start-screen').style.display        = 'none';
@@ -1249,6 +1262,7 @@ function showTutorialScreen() {
 }
 
 function showSongScreen() {
+  gameState = 'menu';
   document.getElementById('song-screen').style.display         = 'flex';
   document.getElementById('tutorial-screen').style.display     = 'none';
   document.getElementById('start-screen').style.display        = 'none';
@@ -1263,6 +1277,7 @@ let practiceMode = false;
 async function advanceFromSongScreen() {
   practiceMode = false;
   await loadSelectedMidi();
+  gameState = 'idle';
   document.getElementById('song-screen').style.display  = 'none';
   document.getElementById('start-screen').style.display = 'flex';
 }
@@ -1274,6 +1289,7 @@ function skipToFreePlay() {
   BPM          = 90; BEAT_MS = 60000 / BPM;
   BEATS_PER_BAR = 4;
   applyTimeSig(4, 4);
+  gameState = 'idle';
   document.getElementById('song-screen').style.display  = 'none';
   document.getElementById('start-screen').style.display = 'flex';
 }
@@ -1389,7 +1405,7 @@ function scheduleAhead(currentBeatFloat) {
 // ═══════════════════════════════════════════════════════════
 //  GAME STATE
 // ═══════════════════════════════════════════════════════════
-let gameState  = 'idle';
+let gameState  = 'menu';
 let startTime  = 0;
 let notes      = [];
 let feedbacks  = [];
@@ -1930,6 +1946,7 @@ function startGame() {
   startTime  = performance.now();
   lastFrameT = performance.now();
   gameState  = 'playing';
+  document.body.classList.add('game-active');
   rafId = requestAnimationFrame(tick);
 
   // Start countdown immediately over the game interface
@@ -1955,6 +1972,7 @@ function getBitboxQuote(acc) {
 
 function finishGame() {
   gameState = 'results';
+  document.body.classList.remove('game-active');
   if (midiScheduler) { midiScheduler.stop(); midiScheduler = null; }
   cancelAnimationFrame(rafId);
   document.getElementById('end-btn').style.display = 'none';
@@ -1987,6 +2005,7 @@ function restartGame() {
 }
 
 function goToSongSelect() {
+  document.body.classList.remove('game-active');
   document.getElementById('results-screen').style.display = 'none';
   if (midiScheduler) { midiScheduler.stop(); midiScheduler = null; }
   showSongScreen();
@@ -2001,6 +2020,7 @@ document.addEventListener('keydown', e => {
   if (!(k in KEY_TO_LANE)) return;
   e.preventDefault();
   ensureAudio();
+  if (gameState === 'menu') return;
   if (gameState === 'idle') { startGame(); return; }
   if (gameState !== 'playing') return;
   const lane = KEY_TO_LANE[k];
@@ -2013,6 +2033,7 @@ document.querySelectorAll('.key-btn').forEach(el => {
   function onPress(ev) {
     ev.preventDefault();
     ensureAudio();
+    if (gameState === 'menu') return;
     if (gameState === 'idle') { startGame(); return; }
     if (gameState !== 'playing') return;
     handleInput(lane);
