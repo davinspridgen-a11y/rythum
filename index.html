@@ -416,7 +416,7 @@ body::after {
 .res-top-row {
   display:flex; gap:16px; align-items:flex-start;
 }
-.bitbox-mini-results { width:min(47.5vw,175px); display:block; flex-shrink:0; }
+.bitbox-mini-results { width:min(71vw,263px); display:block; flex-shrink:0; }
 .res-speech {
   font-family:'VT323',monospace;
   font-size:17px; color:#2a2a2a;
@@ -1911,15 +1911,15 @@ const sfxClick  = new Audio('Click.wav');
 const sfxSelect = new Audio('Select.wav');
 sfxClick.preload  = 'auto';
 sfxSelect.preload = 'auto';
+sfxClick.volume   = 0.5;
+sfxSelect.volume  = 0.5;
 
 function playClick() {
   sfxClick.currentTime = 0;
-  sfxClick.volume = 0.75;
   sfxClick.play().catch(() => {});
 }
 function playSelect() {
   sfxSelect.currentTime = 0;
-  sfxSelect.volume = 0.75;
   sfxSelect.play().catch(() => {});
 }
 
