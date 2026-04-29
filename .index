@@ -1,0 +1,24 @@
+# BitBeats — GitHub Upload Reference
+## Repository: davinspridgen-a11y/rythum | Branch: main
+
+### Files to Upload to GitHub
+
+| File | Description | Status |
+|------|-------------|--------|
+| `index.html` | BitBeats full UI redesign (101,512 bytes) — main app entry point | ⬆ Pending upload |
+
+---
+
+### How to Upload Manually (if needed)
+
+1. Go to: https://github.com/davinspridgen-a11y/rythum/upload/main
+2. Drag and drop `index.html` from this folder onto the upload zone
+3. Add a commit message (e.g. "Update BitBeats UI redesign")
+4. Click **Commit changes**
+
+---
+
+### Notes
+- Claude is handling the upload automatically via browser injection.
+- This file is a reference in case the automated upload needs to be retried.
+- All other files (icons, MIDI, docs) live in this folder but only `index.html` is the active web app file that needs to be on GitHub.
