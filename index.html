@@ -217,13 +217,35 @@ html, body {
     radial-gradient(ellipse 55% 25% at 40% 18%, rgba(255,255,255,0.022) 0%, transparent 100%);
 }
 
-/* Accuracy corner — lower left, above instrument label strip, over bezel */
+/* Power indicator — lives in the top-right bezel area */
+#power-indicator {
+  position:absolute; top:14px; right:8px;
+  display:flex; align-items:center; gap:3px;
+  z-index:9982; pointer-events:none;
+}
+#power-label {
+  font-family:'Press Start 2P',monospace;
+  font-size:7px; color:#c8cac8;
+  letter-spacing:1px; line-height:1;
+}
+#power-led {
+  width:8px; height:4px;
+  background:#e02020;
+  border-radius:2px;
+  box-shadow:
+    0 0 4px 2px rgba(220,30,30,0.80),
+    0 0 10px 4px rgba(220,30,30,0.35);
+}
+
+/* Accuracy corner — lower left, visible only during gameplay */
 #info-corner {
   position:absolute; left:50px; bottom:70px;
   background:#1a1a1e; border:1px solid #54585a;
   border-radius:6px; padding:6px 14px;
   text-align:center; min-width:90px;
-  pointer-events:none; z-index:9985;
+  pointer-events:none;
+  /* z-index 150 = above canvas, below overlays (200+) */
+  z-index:150; display:none;
   box-shadow:3px 3px 0 #514689;
 }
 .ic-sig   { font-family:'VT323',monospace; font-size:13px; color:#707372; letter-spacing:1px; }
@@ -853,6 +875,10 @@ body.game-active .key-btn.locked { opacity:0.22; }
   <!-- GAME CANVAS -->
   <div id="zone-a">
     <canvas id="track-canvas"></canvas>
+    <div id="power-indicator">
+      <span id="power-label">POWER</span>
+      <span id="power-led"></span>
+    </div>
     <div id="info-corner">
       <div class="ic-sig">Accuracy</div>
       <div class="ic-score" id="ic-score">—/100</div>
@@ -1278,6 +1304,7 @@ function applyTimeSig(num, den) {
 
 function showTutorialScreen() {
   gameState = 'menu';
+  document.getElementById('info-corner').style.display = 'none';
   document.getElementById('tutorial-screen').style.display     = 'flex';
   document.getElementById('song-screen').style.display         = 'none';
   document.getElementById('start-screen').style.display        = 'none';
@@ -1287,6 +1314,7 @@ function showTutorialScreen() {
 
 function showSongScreen() {
   gameState = 'menu';
+  document.getElementById('info-corner').style.display = 'none';
   document.getElementById('song-screen').style.display         = 'flex';
   document.getElementById('tutorial-screen').style.display     = 'none';
   document.getElementById('start-screen').style.display        = 'none';
@@ -1302,6 +1330,7 @@ async function advanceFromSongScreen() {
   practiceMode = false;
   await loadSelectedMidi();
   gameState = 'idle';
+  document.getElementById('info-corner').style.display = 'block';
   document.getElementById('song-screen').style.display  = 'none';
   document.getElementById('start-screen').style.display = 'flex';
 }
@@ -1314,6 +1343,7 @@ function skipToFreePlay() {
   BEATS_PER_BAR = 4;
   applyTimeSig(4, 4);
   gameState = 'idle';
+  document.getElementById('info-corner').style.display = 'block';
   document.getElementById('song-screen').style.display  = 'none';
   document.getElementById('start-screen').style.display = 'flex';
 }
@@ -2000,6 +2030,7 @@ function getBitboxQuote(acc) {
 
 function finishGame() {
   gameState = 'results';
+  document.getElementById('info-corner').style.display = 'none';
   document.body.classList.remove('game-active');
   if (midiScheduler) { midiScheduler.stop(); midiScheduler = null; }
   cancelAnimationFrame(rafId);
