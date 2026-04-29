@@ -197,13 +197,8 @@ html, body {
   position:absolute; inset:0;
   border:40px solid #232230;
   box-sizing:border-box;
-  /* outer corners clipped to zone-a's own shape by overflow:hidden
-     inner corners = border-radius - 40px:
-       top-left:    52-40 = 12px  ← matches outer frame
-       top-right:   52-40 = 12px  ← matches outer frame
-       bottom-right:88-40 = 48px  ← matches outer frame
-       bottom-left: 52-40 = 12px  ← matches outer frame */
-  border-radius:52px 52px 88px 52px;
+  /* must match zone-a exactly — any larger radius creates a crescent gap at corners */
+  border-radius:12px 12px 48px 12px;
   pointer-events:none; z-index:9980;
 }
 
