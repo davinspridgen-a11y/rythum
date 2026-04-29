@@ -211,7 +211,7 @@ html, body {
 #zone-a::after {
   content:'';
   position:absolute; inset:0;
-  border-radius:10px 10px 46px 10px;
+  border-radius:12px 12px 48px 12px;
   pointer-events:none; z-index:9990;
   background:
     /* Primary glare — upper-left sweep */
@@ -350,7 +350,7 @@ body.game-active .key-btn.locked { opacity:0.22; }
 #countdown-screen::before {
   content:'';
   position:absolute; inset:0;
-  border-radius:10px 10px 46px 10px;
+  border-radius:12px 12px 48px 12px;
   pointer-events:none; z-index:9990;
   box-shadow:
     inset 0 10px 36px rgba(0,0,0,0.95),
@@ -359,7 +359,7 @@ body.game-active .key-btn.locked { opacity:0.22; }
 }
 /* Grey-bg overlays get 25% lighter inset shadow */
 #splash-screen::before {
-  border-radius:10px 10px 46px 10px;
+  border-radius:12px 12px 48px 12px;
   box-shadow:
     inset 0 8px 27px rgba(0,0,0,0.71),
     inset 8px 0 23px rgba(0,0,0,0.45),
@@ -2160,7 +2160,7 @@ function constrainOverlaysToScreen() {
   if (!za) return;
   const r = za.getBoundingClientRect();
   // match zone-a's asymmetric border-radius (bottom-right 4× for handheld feel)
-  const br = '10px 10px 46px 10px';
+  const br = '12px 12px 48px 12px';
   OVERLAY_IDS.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
