@@ -317,7 +317,7 @@ html, body {
 ════════════════════════════════════ */
 #zone-c {
   flex:0 0 auto;
-  display:flex; gap:4px;
+  display:flex; gap:0;
   /* deck-pad-h = frame-mg + bezel — keeps button centres on lane centres */
   padding:var(--deck-pt) var(--deck-pad-h) var(--deck-pb) var(--deck-pad-h);
   padding-bottom:max(var(--deck-pb), calc(env(safe-area-inset-bottom) + 14px));
@@ -399,7 +399,7 @@ body.game-active .key-btn.locked { opacity:0.22; }
 #countdown-screen::before {
   content:'';
   position:absolute; inset:0;
-  border-radius:12px 12px 48px 12px;
+  border-radius:0;
   pointer-events:none; z-index:9990;
   box-shadow:
     inset 0 10px 36px rgba(0,0,0,0.95),
@@ -408,7 +408,7 @@ body.game-active .key-btn.locked { opacity:0.22; }
 }
 /* Grey-bg overlays get 25% lighter inset shadow */
 #splash-screen::before {
-  border-radius:12px 12px 48px 12px;
+  border-radius:0;
   box-shadow:
     inset 0 8px 27px rgba(0,0,0,0.71),
     inset 8px 0 23px rgba(0,0,0,0.45),
@@ -445,20 +445,22 @@ body.game-active .key-btn.locked { opacity:0.22; }
 #song-screen .overlay-title { color:#2a2a2a; margin-bottom:8px; text-align:center; }
 .song-skip { text-align:center; justify-content:center; }
 #song-list {
-  display:flex; flex-direction:column; gap:10px;
-  padding:4px 20px;
-  width:min(560px,94vw);
+  display:flex; flex-direction:row; flex-wrap:wrap; gap:8px;
+  padding:4px 12px;
+  width:min(560px,100%);
   max-height:62vh; overflow-y:auto;
   -webkit-overflow-scrolling:touch;
+  align-content:flex-start;
 }
 .song-row {
+  width:calc(50% - 4px);
   background:#c0c0c0; border:3px solid #888; border-radius:4px;
   box-shadow:4px 4px 0 #555;
-  display:flex; align-items:center; gap:14px;
-  padding:14px 18px;
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px;
   cursor:pointer; touch-action:manipulation;
   transition:background 0.1s, border-color 0.1s;
-  min-height:82px;
+  min-height:72px; box-sizing:border-box;
 }
 .song-row.selected { background:#8a8a8a; border-color:#a7a4e0; border-width:3px; box-shadow:4px 4px 0 #514689; }
 .song-radio {
@@ -673,6 +675,8 @@ body.game-active .key-btn.locked { opacity:0.22; }
   #hud-logo  { font-size:clamp(10px,3.5vw,16px); padding-left:8px; }
   #splash-logo { width:min(82vw,220px); }
   .bitbox-mini { width:min(80vw,280px); }
+  /* Song cards go single-column on small phones */
+  .song-row { width:100%; }
 }
 
 /* ── Small mobile portrait (≤375px) ── */
@@ -1618,11 +1622,13 @@ function resizeCanvas() {
   canvas.height = Math.round(h * dpr);
   canvas.style.width      = w + 'px';
   canvas.style.height     = h + 'px';
-  canvas.style.marginLeft = BEZEL + 'px';
-  canvas.style.marginTop  = BEZEL + 'px';
+  // subtract zone-a's border width so canvas left edge lines up with lane 0
+  const borderW = el.clientLeft || 2;
+  canvas.style.marginLeft = (BEZEL - borderW) + 'px';
+  canvas.style.marginTop  = (BEZEL - borderW) + 'px';
 }
 
-function hy() { return Math.floor(logH * 0.78); }
+function hy() { return Math.floor(logH * 0.72); }
 
 // ═══════════════════════════════════════════════════════════
 //  DRAW
@@ -2305,18 +2311,19 @@ function constrainOverlaysToScreen() {
   const za = document.getElementById('zone-a');
   if (!za) return;
   const r = za.getBoundingClientRect();
-  // match zone-a's asymmetric border-radius (bottom-right 4× for handheld feel)
-  const br = '12px 12px 48px 12px';
+  const BEZEL = getBezel();
+  const borderW = za.clientLeft || 2;
+  const inset = BEZEL + borderW;
   OVERLAY_IDS.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.style.top          = r.top    + 'px';
-    el.style.left         = r.left   + 'px';
-    el.style.width        = r.width  + 'px';
-    el.style.height       = r.height + 'px';
+    el.style.top          = (r.top    + inset) + 'px';
+    el.style.left         = (r.left   + inset) + 'px';
+    el.style.width        = (r.width  - inset * 2) + 'px';
+    el.style.height       = (r.height - inset * 2) + 'px';
     el.style.right        = 'auto';
     el.style.bottom       = 'auto';
-    el.style.borderRadius = br;
+    el.style.borderRadius = '0';
     el.style.overflow     = 'hidden';
   });
 }
