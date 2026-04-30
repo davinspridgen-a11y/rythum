@@ -18,8 +18,26 @@
 /* ── RESET ── */
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-/* Device chassis height var — updated by JS on resize */
-:root { --zone-c-h: 152px; }
+/* ── DESIGN TOKENS — all layout values derived from these ── */
+:root {
+  --zone-c-h: 152px;      /* updated by JS on resize */
+
+  /* Bezel ring thickness — drives canvas inset + button deck alignment */
+  --bezel: 40px;
+
+  /* Zone-a horizontal margin from device edge */
+  --frame-mg: 20px;
+
+  /* Derived: button deck horizontal padding = margin + bezel */
+  --deck-pad-h: calc(var(--frame-mg) + var(--bezel));
+
+  /* Button deck vertical rhythm */
+  --deck-pt: 16px;
+  --deck-pb: 26px;
+
+  /* Physical button height */
+  --btn-h: 114px;
+}
 
 html, body {
   width:100%; height:100%;
@@ -176,7 +194,7 @@ html, body {
   flex:1 1 0; position:relative;
   background:#0d0d11; min-height:0;
   /* Margin creates the inset "screen mount" bezel — more margin = more GameBoy */
-  margin:10px 20px 4px 20px;
+  margin:10px var(--frame-mg) 4px var(--frame-mg);
   /* 2pt outer stroke — outer casing edge */
   border:2px solid #1a1a1e;
   /* bottom-right corner elongated 4× for asymmetric handheld feel */
@@ -195,7 +213,7 @@ html, body {
 #zone-a::before {
   content:'';
   position:absolute; inset:0;
-  border:40px solid #232230;
+  border:var(--bezel) solid #232230;
   box-sizing:border-box;
   /* must match zone-a exactly — any larger radius creates a crescent gap at corners */
   border-radius:12px 12px 48px 12px;
@@ -219,7 +237,9 @@ html, body {
 
 /* Power indicator — lives in the top-right bezel area */
 #power-indicator {
-  position:absolute; top:14px; right:8px;
+  position:absolute;
+  top:calc(var(--bezel) * 0.35);
+  right:calc(var(--bezel) * 0.2);
   display:flex; align-items:center; gap:3px;
   z-index:9982; pointer-events:none;
 }
@@ -239,7 +259,9 @@ html, body {
 
 /* Accuracy corner — lower left, visible only during gameplay */
 #info-corner {
-  position:absolute; left:50px; bottom:70px;
+  position:absolute;
+  left:calc(var(--bezel) + 10px);
+  bottom:calc(var(--bezel) + 28px);
   background:#1a1a1e; border:1px solid #54585a;
   border-radius:6px; padding:6px 14px;
   text-align:center; min-width:90px;
@@ -286,16 +308,16 @@ html, body {
 #zone-c {
   flex:0 0 auto;
   display:flex; gap:4px;
-  /* 60px = zone-a margin(20px) + bezel(40px) — aligns button centres with lane centres */
-  padding:16px 60px 26px 60px;
-  padding-bottom:max(26px, calc(env(safe-area-inset-bottom) + 14px));
+  /* deck-pad-h = frame-mg + bezel — keeps button centres on lane centres */
+  padding:var(--deck-pt) var(--deck-pad-h) var(--deck-pb) var(--deck-pad-h);
+  padding-bottom:max(var(--deck-pb), calc(env(safe-area-inset-bottom) + 14px));
   background:transparent; /* chassis gradient shows as front panel */
   position:relative;
   /* no highlight line, no border */
 }
 .key-btn {
   flex:1 1 0; min-width:0;
-  height:114px;
+  height:var(--btn-h);
   display:flex; align-items:center; justify-content:center;
   cursor:pointer; touch-action:manipulation;
   border:none; position:relative;
@@ -594,6 +616,94 @@ body.game-active .key-btn.locked { opacity:0.22; }
 @keyframes pixelReveal   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 @keyframes blink         { 0%,100%{opacity:1} 50%{opacity:0} }
 @keyframes fadeOutEl     { from{opacity:1} to{opacity:0} }
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   All layout values flow from :root tokens — only tokens change.
+════════════════════════════════════════════════════════════ */
+
+/* ── iPad landscape (primary secondary — wider than tall) ── */
+@media (orientation:landscape) and (min-width:768px) and (min-height:600px) {
+  :root {
+    --bezel:    28px;
+    --frame-mg: 14px;
+    --btn-h:    84px;
+    --deck-pt:  10px;
+    --deck-pb:  16px;
+  }
+  #zone-b { padding:max(12px, env(safe-area-inset-top)) 16px 8px 16px; }
+}
+
+/* ── Desktop / large screens (≥1200px) — constrain to portrait column ── */
+@media (min-width:1200px) {
+  body {
+    background:#2e2e2e;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh;
+  }
+  #app {
+    width:520px; max-width:520px;
+    height:min(940px, 100dvh);
+    border-radius:12px;
+    box-shadow:0 24px 64px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.06);
+  }
+  :root {
+    --bezel:    34px;
+    --frame-mg: 18px;
+    --btn-h:    96px;
+    --deck-pt:  14px;
+    --deck-pb:  22px;
+  }
+}
+
+/* ── Mobile portrait (≤480px) ── */
+@media (max-width:480px) {
+  :root {
+    --bezel:    22px;
+    --frame-mg: 10px;
+    --btn-h:    76px;
+    --deck-pt:  10px;
+    --deck-pb:  16px;
+  }
+  #zone-b { padding:max(14px, env(safe-area-inset-top)) 12px 8px 12px; gap:6px; }
+  .hud-label { font-size:9px; }
+  .hud-value { font-size:16px; }
+  #hud-logo  { font-size:clamp(10px,3.5vw,16px); }
+  #splash-logo { width:min(82vw,220px); }
+  .bitbox-mini { width:min(80vw,280px); }
+}
+
+/* ── Small mobile portrait (≤375px) ── */
+@media (max-width:375px) {
+  :root {
+    --bezel:    16px;
+    --frame-mg: 8px;
+    --btn-h:    64px;
+    --deck-pt:  8px;
+    --deck-pb:  12px;
+  }
+}
+
+/* ── Mobile landscape (short screens, orientation landscape) ── */
+@media (orientation:landscape) and (max-height:500px) {
+  :root {
+    --bezel:    14px;
+    --frame-mg: 8px;
+    --btn-h:    52px;
+    --deck-pt:  6px;
+    --deck-pb:  8px;
+  }
+  #zone-b {
+    padding:max(6px, env(safe-area-inset-top)) 10px 4px 10px;
+    gap:6px;
+  }
+  .hud-label { font-size:9px; }
+  .hud-value { font-size:14px; }
+  .beat-pill { padding:4px 8px; gap:5px; }
+  .beat-dot  { width:8px; height:8px; }
+  #hud-logo  { font-size:10px; }
+  .key-btn::after { font-size:6px; bottom:-16px; }
+}
   </style>
 </head>
 <body>
@@ -1484,14 +1594,20 @@ const canvas = document.getElementById('track-canvas');
 const ctx    = canvas.getContext('2d');
 let logW = 0, logH = 0;
 
-const BEZEL = 40; // matches #zone-a::before border width
+// Read --bezel token live so canvas always tracks the active breakpoint
+function getBezel() {
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--bezel').trim();
+  return parseInt(v) || 40;
+}
+
 function resizeCanvas() {
-  const el  = document.getElementById('zone-a');
+  const BEZEL = getBezel();
+  const el    = document.getElementById('zone-a');
   const fullW = el.offsetWidth  > 0 ? el.offsetWidth  : window.innerWidth;
   const fullH = el.offsetHeight > 0 ? el.offsetHeight : Math.floor(window.innerHeight * 0.58);
-  // shrink canvas to sit fully inside bezel on all four sides
-  const w = fullW - BEZEL * 2;
-  const h = fullH - BEZEL * 2;
+  // canvas fits exactly inside the bezel ring on all four sides
+  const w = Math.max(fullW - BEZEL * 2, 10);
+  const h = Math.max(fullH - BEZEL * 2, 10);
   const dpr = Math.min(window.devicePixelRatio || 1, 3);
   logW = w; logH = h;
   canvas.width  = Math.round(w * dpr);
