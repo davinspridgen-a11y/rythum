@@ -156,7 +156,7 @@ html, body {
 
 /* End session button */
 .hud-end-btn {
-  padding:10px 18px;
+  padding:10px 16px;
   background:#514689;
   border:2px solid #a7a4e0;
   border-radius:4px;
@@ -165,9 +165,12 @@ html, body {
   font-size:17px; font-weight:700; letter-spacing:1px;
   cursor:pointer; touch-action:manipulation;
   transition:background 0.1s, filter 0.1s; white-space:nowrap;
-  min-height:44px;
+  min-height:44px; min-width:44px; flex-shrink:0;
 }
 .hud-end-btn:active { filter:brightness(1.25); }
+/* Collapsed "×" shown only when screen is narrow */
+.hud-end-btn .btn-x    { display:none; line-height:1; }
+.hud-end-btn .btn-label{ display:inline; }
 
 /* Volume button */
 #vol-btn {
@@ -196,6 +199,9 @@ html, body {
   font-size:clamp(12px,2vw,22px);
   color:#1a1a1e; letter-spacing:1px; white-space:nowrap;
 }
+/* Logo variants: text on wide, icon on narrow */
+#hud-logo .logo-text { display:inline; }
+#hud-logo .logo-icon { display:none; width:28px; height:28px; vertical-align:middle; }
 
 /* ════════════════════════════════════
    GAME CANVAS  (zone-a) — LCD screen
@@ -438,9 +444,11 @@ body.game-active .key-btn.locked { opacity:0.22; }
 ════════════════════════════════════ */
 #song-screen {
   background:#9b9b9b !important;
-  overflow-y:auto; -webkit-overflow-scrolling:touch;
-  justify-content:flex-start; align-items:center;
+  /* overflow handled by inner .overlay-scroll */
+}
+#song-screen .overlay-scroll {
   padding:clamp(12px,2vh,20px) 0 clamp(10px,2vh,16px);
+  gap:14px; justify-content:flex-start;
 }
 #song-screen .overlay-title { color:#2a2a2a; margin-bottom:8px; text-align:center; }
 .song-skip { text-align:center; justify-content:center; }
@@ -487,10 +495,19 @@ body.game-active .key-btn.locked { opacity:0.22; }
 /* ════════════════════════════════════
    TUTORIAL SCREEN
 ════════════════════════════════════ */
+/* Scrollable inner wrapper — keeps ::before shadow fixed at overlay edges */
+.overlay-scroll {
+  flex:1 1 0; min-height:0;
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  width:100%;
+  display:flex; flex-direction:column; align-items:center;
+}
+
 #tutorial-screen {
   background:#9b9b9b !important;
-  overflow-y:auto; -webkit-overflow-scrolling:touch;
-  justify-content:flex-start; align-items:center;
+  /* overflow handled by inner .overlay-scroll */
+}
+#tutorial-screen .overlay-scroll {
   padding:clamp(10px,3vh,24px) 0 clamp(10px,2vh,20px);
   gap:clamp(6px,1.5vh,14px);
 }
@@ -573,7 +590,11 @@ body.game-active .key-btn.locked { opacity:0.22; }
 /* ════════════════════════════════════
    RESULTS SCREEN
 ════════════════════════════════════ */
-#results-screen { gap:10px; overflow-y:auto; padding:clamp(12px,2vh,20px) clamp(10px,2vw,16px); }
+/* results background already set in #results-screen rule above */
+#results-screen .overlay-scroll {
+  gap:10px; padding:clamp(12px,2vh,20px) clamp(10px,2vw,16px);
+  justify-content:flex-start;
+}
 
 .res-modal {
   background:#9b9b9b; border:3px solid #707372;
@@ -660,6 +681,17 @@ body.game-active .key-btn.locked { opacity:0.22; }
   }
 }
 
+/* ── HUD compact mode: collapse end button + swap logo to icon (≤560px) ── */
+@media (max-width:560px) {
+  /* End session: hide text label, show × only */
+  .hud-end-btn .btn-label { display:none; }
+  .hud-end-btn .btn-x     { display:inline; font-size:18px; line-height:1; }
+  .hud-end-btn { padding:10px 12px; }
+  /* Logo: hide wordmark, show icon */
+  #hud-logo .logo-text { display:none; }
+  #hud-logo .logo-icon { display:inline-block; }
+}
+
 /* ── Mobile portrait (≤480px) ── */
 @media (max-width:480px) {
   :root {
@@ -673,7 +705,7 @@ body.game-active .key-btn.locked { opacity:0.22; }
   #hud-controls { gap:6px; }
   .hud-label { font-size:9px; }
   .hud-value { font-size:16px; }
-  #hud-logo  { font-size:clamp(10px,3.5vw,16px); padding-left:8px; }
+  #hud-logo  { padding-left:8px; }
   #splash-logo { width:min(82vw,220px); }
   .bitbox-mini { width:min(80vw,280px); }
   /* Song cards go single-column on small phones */
@@ -774,6 +806,7 @@ body.game-active .key-btn.locked { opacity:0.22; }
 
 <!-- ══ TUTORIAL ══ -->
 <div class="overlay" id="tutorial-screen">
+  <div class="overlay-scroll">
   <!-- immediately visible; song-screen is hidden by default -->
   <div class="overlay-title">How to play:</div>
   <div class="tut-card">
@@ -820,14 +853,17 @@ body.game-active .key-btn.locked { opacity:0.22; }
     </div>
   </div>
   <button class="cta-btn" id="tutorial-next-btn">Got it!</button>
+  </div><!-- /.overlay-scroll -->
 </div>
 
 <!-- ══ SONG SELECT ══ -->
 <div class="overlay" id="song-screen" style="display:none;">
-  <div class="overlay-title">Pick your music</div>
-  <div id="song-list"><!-- rows injected by JS --></div>
-  <button type="button" class="cta-btn" id="song-next-btn">Start!</button>
-  <div class="song-skip" id="song-skip-btn">Skip · Practice without music</div>
+  <div class="overlay-scroll">
+    <div class="overlay-title">Pick your music</div>
+    <div id="song-list"><!-- rows injected by JS --></div>
+    <button type="button" class="cta-btn" id="song-next-btn">Start!</button>
+    <div class="song-skip" id="song-skip-btn">Skip · Practice without music</div>
+  </div><!-- /.overlay-scroll -->
 </div>
 
 <!-- ══ READY SCREEN ══ -->
@@ -885,6 +921,7 @@ body.game-active .key-btn.locked { opacity:0.22; }
 
 <!-- ══ RESULTS SCREEN ══ -->
 <div class="overlay" id="results-screen" style="display:none;">
+  <div class="overlay-scroll">
   <div class="res-modal">
     <div class="res-modal-header">Summary:</div>
     <div class="res-top-row">
@@ -948,6 +985,7 @@ body.game-active .key-btn.locked { opacity:0.22; }
     <button type="button" class="cta-btn-secondary" id="change-track-btn">Change song</button>
     <button type="button" class="cta-btn" id="retry-btn">Replay</button>
   </div>
+  </div><!-- /.overlay-scroll -->
 </div>
 
 <!-- ══ PRACTICE END SCREEN ══ -->
@@ -985,10 +1023,14 @@ body.game-active .key-btn.locked { opacity:0.22; }
       <div class="hud-sep"></div>
       <button id="vol-btn" title="Toggle volume">🔈</button>
       <div class="hud-sep"></div>
-      <button class="hud-end-btn" id="end-btn" onclick="finishGame()" style="display:none;">End Session</button>
+      <button class="hud-end-btn" id="end-btn" onclick="finishGame()" style="display:none;" title="End Session">
+        <span class="btn-label">End Session</span><span class="btn-x">✕</span>
+      </button>
     </div>
-    <!-- Wordmark — always right-aligned, never shrinks -->
-    <div id="hud-logo">BITBEATS</div>
+    <!-- Wordmark / icon — right-aligned, swaps to icon on narrow screens -->
+    <div id="hud-logo">
+      <span class="logo-text">BITBEATS</span><img class="logo-icon" src="favicon.png" alt="BitBeats" onerror="this.style.display='none';this.previousElementSibling.style.display='inline'">
+    </div>
   </div>
 
   <!-- GAME CANVAS -->
@@ -1368,8 +1410,19 @@ function buildSongCards() {
         <span class="song-diff-label">Difficulty</span>
         <span class="song-stars">${getDiffStars(song.bpm)}</span>
       </div>`;
+    // Click works for mouse/keyboard
     row.addEventListener('click', () => selectSong(song.id));
-    row.addEventListener('touchend', e => { e.preventDefault(); selectSong(song.id); }, { passive:false });
+    // Touch: only select if finger didn't scroll (moved < 10px vertically)
+    let _touchY0 = 0, _touchMoved = false;
+    row.addEventListener('touchstart', e => {
+      _touchY0 = e.touches[0].clientY; _touchMoved = false;
+    }, { passive:true });
+    row.addEventListener('touchmove', e => {
+      if (Math.abs(e.touches[0].clientY - _touchY0) > 10) _touchMoved = true;
+    }, { passive:true });
+    row.addEventListener('touchend', e => {
+      if (!_touchMoved) { e.preventDefault(); selectSong(song.id); }
+    }, { passive:false });
     list.appendChild(row);
   });
   SONGS.forEach(song => {
