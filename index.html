@@ -28,8 +28,8 @@
   /* Zone-a horizontal margin from device edge */
   --frame-mg: 20px;
 
-  /* Derived: button deck horizontal padding = margin + bezel */
-  --deck-pad-h: calc(var(--frame-mg) + var(--bezel));
+  /* Derived: button deck horizontal padding = margin + bezel + zone-a border(2px) */
+  --deck-pad-h: calc(var(--frame-mg) + var(--bezel) + 2px);
 
   /* Button deck vertical rhythm */
   --deck-pt: 16px;
@@ -318,7 +318,7 @@ html, body {
 #zone-c {
   flex:0 0 auto;
   display:flex; gap:0;
-  /* deck-pad-h = frame-mg + bezel — keeps button centres on lane centres */
+  /* deck-pad-h = frame-mg + bezel + 2px(border) — keeps button centres on lane centres */
   padding:var(--deck-pt) var(--deck-pad-h) var(--deck-pb) var(--deck-pad-h);
   padding-bottom:max(var(--deck-pb), calc(env(safe-area-inset-bottom) + 14px));
   background:transparent; /* chassis gradient shows as front panel */
@@ -439,8 +439,8 @@ body.game-active .key-btn.locked { opacity:0.22; }
 #song-screen {
   background:#9b9b9b !important;
   overflow-y:auto; -webkit-overflow-scrolling:touch;
-  justify-content:center; align-items:center;
-  padding:24px 0;
+  justify-content:flex-start; align-items:center;
+  padding:clamp(12px,2vh,20px) 0 clamp(10px,2vh,16px);
 }
 #song-screen .overlay-title { color:#2a2a2a; margin-bottom:8px; text-align:center; }
 .song-skip { text-align:center; justify-content:center; }
@@ -448,33 +448,33 @@ body.game-active .key-btn.locked { opacity:0.22; }
   display:flex; flex-direction:row; flex-wrap:wrap; gap:8px;
   padding:4px 12px;
   width:min(560px,100%);
-  max-height:62vh; overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
   align-content:flex-start;
 }
 .song-row {
   width:calc(50% - 4px);
   background:#c0c0c0; border:3px solid #888; border-radius:4px;
   box-shadow:4px 4px 0 #555;
-  display:flex; align-items:center; gap:10px;
-  padding:10px 12px;
+  display:flex; flex-direction:column; gap:6px;
+  padding:10px 10px 8px;
   cursor:pointer; touch-action:manipulation;
   transition:background 0.1s, border-color 0.1s;
-  min-height:72px; box-sizing:border-box;
+  box-sizing:border-box;
 }
 .song-row.selected { background:#8a8a8a; border-color:#a7a4e0; border-width:3px; box-shadow:4px 4px 0 #514689; }
-.song-radio {
-  width:20px; height:20px;
-  border:3px solid #666; border-radius:50%;
-  flex-shrink:0; background:transparent;
+/* Song name — full-width top row */
+.song-name  {
+  font-family:'VT323',monospace; font-size:clamp(16px,3vw,20px);
+  color:#1a1a1a; letter-spacing:1px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-.song-row.selected .song-radio { background:#514689; border-color:#a7a4e0; }
-.song-thumb { width:52px; height:52px; border-radius:10px; flex-shrink:0; }
-.song-info { display:flex; flex-direction:column; gap:2px; flex:1; }
-.song-name  { font-family:'VT323',monospace; font-size:21px; color:#1a1a1a; letter-spacing:1px; }
-.song-tempo { font-family:'VT323',monospace; font-size:16px; color:#444; letter-spacing:1px; }
-.song-diff-label { font-family:'VT323',monospace; font-size:14px; color:#555; letter-spacing:1px; }
-.song-stars { font-family:'VT323',monospace; font-size:16px; color:#514689; letter-spacing:1px; }
+/* Mid row: thumb + bpm */
+.song-card-mid { display:flex; align-items:center; gap:8px; }
+.song-thumb { width:36px; height:36px; border-radius:8px; flex-shrink:0; }
+.song-tempo { font-family:'VT323',monospace; font-size:clamp(13px,2.5vw,16px); color:#444; letter-spacing:1px; }
+/* Bottom row: difficulty */
+.song-diff-row { display:flex; align-items:center; gap:6px; }
+.song-diff-label { font-family:'VT323',monospace; font-size:clamp(11px,2vw,13px); color:#555; letter-spacing:1px; }
+.song-stars { font-family:'VT323',monospace; font-size:clamp(12px,2.5vw,15px); color:#514689; letter-spacing:1px; }
 .song-skip {
   font-family:'VT323',monospace; font-size:17px; color:#555;
   letter-spacing:1px; cursor:pointer; touch-action:manipulation;
@@ -573,41 +573,42 @@ body.game-active .key-btn.locked { opacity:0.22; }
 /* ════════════════════════════════════
    RESULTS SCREEN
 ════════════════════════════════════ */
-#results-screen { gap:12px; overflow-y:auto; padding:24px 16px; }
+#results-screen { gap:10px; overflow-y:auto; padding:clamp(12px,2vh,20px) clamp(10px,2vw,16px); }
 
 .res-modal {
   background:#9b9b9b; border:3px solid #707372;
-  border-radius:4px; padding:20px 22px;
+  border-radius:4px; padding:clamp(12px,2vh,20px) clamp(12px,2vw,22px);
   box-shadow:6px 6px 0 #444;
-  width:min(460px,92vw);
-  display:flex; flex-direction:column; gap:14px;
+  width:min(460px,100%);
+  display:flex; flex-direction:column; gap:12px;
+  box-sizing:border-box;
 }
 .res-modal-header {
   font-family:'VT323',monospace;
-  font-size:24px; color:#1a1a1a; letter-spacing:1px;
+  font-size:clamp(18px,4vw,24px); color:#1a1a1a; letter-spacing:1px;
 }
 .res-top-row {
-  display:flex; gap:16px; align-items:flex-start;
+  display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;
 }
-.bitbox-mini-results { width:min(71vw,263px); display:block; flex-shrink:0; }
+.bitbox-mini-results { width:min(200px,45%); display:block; flex-shrink:0; }
 .res-speech {
   font-family:'VT323',monospace;
-  font-size:17px; color:#2a2a2a;
-  font-style:italic; line-height:1.45; flex:1; padding-top:4px;
+  font-size:clamp(14px,3vw,17px); color:#2a2a2a;
+  font-style:italic; line-height:1.45; flex:1; padding-top:4px; min-width:100px;
 }
 .res-card-wrap {
   position:relative;
   background:#514689; border:2px solid #a7a4e0;
-  border-radius:10px; padding:16px 20px;
+  border-radius:10px; padding:clamp(10px,2vh,16px) clamp(12px,2vw,20px);
 }
 .res-sum-line {
   font-family:'VT323',monospace;
-  font-size:19px; color:#d0cef0; letter-spacing:1px; line-height:1.55;
+  font-size:clamp(16px,3.5vw,19px); color:#d0cef0; letter-spacing:1px; line-height:1.55;
 }
 .res-grade-badge {
-  position:absolute; right:-8px; bottom:-8px;
+  position:absolute; right:8px; bottom:8px;
   font-family:'Press Start 2P',monospace;
-  font-size:24px; color:#bf5b5b;
+  font-size:clamp(16px,4vw,24px); color:#bf5b5b;
   background:#9b9b9b; border:3px solid #bf5b5b;
   border-radius:10px; padding:8px 14px;
 }
@@ -1358,13 +1359,14 @@ function buildSongCards() {
     row.className = 'song-row' + (i === 0 ? ' selected' : '');
     row.dataset.id = song.id;
     row.innerHTML = `
-      <div class="song-radio"></div>
-      <div class="song-thumb" style="background:${song.color};padding:4px;box-sizing:border-box;image-rendering:pixelated;">${SONG_ICONS[i] || ''}</div>
-      <div class="song-info">
-        <div class="song-name">${song.name}</div>
-        <div class="song-tempo">${song.bpm} Bpm</div>
-        <div class="song-diff-label">Difficulty</div>
-        <div class="song-stars">${getDiffStars(song.bpm)}</div>
+      <div class="song-name">${song.name}</div>
+      <div class="song-card-mid">
+        <div class="song-thumb" style="background:${song.color};padding:3px;box-sizing:border-box;image-rendering:pixelated;">${SONG_ICONS[i] || ''}</div>
+        <span class="song-tempo">${song.bpm} Bpm</span>
+      </div>
+      <div class="song-diff-row">
+        <span class="song-diff-label">Difficulty</span>
+        <span class="song-stars">${getDiffStars(song.bpm)}</span>
       </div>`;
     row.addEventListener('click', () => selectSong(song.id));
     row.addEventListener('touchend', e => { e.preventDefault(); selectSong(song.id); }, { passive:false });
@@ -1611,21 +1613,24 @@ function getBezel() {
 function resizeCanvas() {
   const BEZEL = getBezel();
   const el    = document.getElementById('zone-a');
+  const borderW = el.clientLeft || 2;
   const fullW = el.offsetWidth  > 0 ? el.offsetWidth  : window.innerWidth;
   const fullH = el.offsetHeight > 0 ? el.offsetHeight : Math.floor(window.innerHeight * 0.58);
-  // canvas fits exactly inside the bezel ring on all four sides
-  const w = Math.max(fullW - BEZEL * 2, 10);
-  const h = Math.max(fullH - BEZEL * 2, 10);
+  // Use clientWidth/Height (excludes zone-a's border) so canvas fits exactly
+  // inside the bezel ring on all four sides, with no overlap into bezel area.
+  const cW = (el.clientWidth  > 0) ? el.clientWidth  : (fullW - borderW * 2);
+  const cH = (el.clientHeight > 0) ? el.clientHeight : (fullH - borderW * 2);
+  const w = Math.max(cW - BEZEL * 2, 10);
+  const h = Math.max(cH - BEZEL * 2, 10);
   const dpr = Math.min(window.devicePixelRatio || 1, 3);
   logW = w; logH = h;
   canvas.width  = Math.round(w * dpr);
   canvas.height = Math.round(h * dpr);
   canvas.style.width      = w + 'px';
   canvas.style.height     = h + 'px';
-  // subtract zone-a's border width so canvas left edge lines up with lane 0
-  const borderW = el.clientLeft || 2;
-  canvas.style.marginLeft = (BEZEL - borderW) + 'px';
-  canvas.style.marginTop  = (BEZEL - borderW) + 'px';
+  // margin from content box = BEZEL (not BEZEL-border; deck-pad-h already adds the border offset)
+  canvas.style.marginLeft = BEZEL + 'px';
+  canvas.style.marginTop  = BEZEL + 'px';
 }
 
 function hy() { return Math.floor(logH * 0.72); }
@@ -2324,7 +2329,8 @@ function constrainOverlaysToScreen() {
     el.style.right        = 'auto';
     el.style.bottom       = 'auto';
     el.style.borderRadius = '0';
-    el.style.overflow     = 'hidden';
+    // Don't force overflow:hidden — let each overlay's CSS control scrolling
+    // (song-screen and results-screen need overflow-y:auto)
   });
 }
 
